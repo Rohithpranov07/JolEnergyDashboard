@@ -7,29 +7,36 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 export default function SmoothScroll({ children }) {
   useEffect(() => {
     const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // https://www.desmos.com/calculator/brs54l4xou
-      direction: "vertical", // vertical, horizontal
-      gestureDirection: "vertical", // vertical, horizontal, both
+      lerp: 0.15, // Faster interpolation
+      direction: "vertical", 
+      gestureDirection: "vertical", 
       smooth: true,
       mouseMultiplier: 1,
+      wheelMultiplier: 1.5, // Amplifies mouse wheel speed by 50%
       smoothTouch: false,
       touchMultiplier: 2,
       infinite: false,
     });
 
+    let tickerCallback = null;
+    let gsapInstance = null;
+    let isUnmounted = false;
+
     // Sync Lenis with GSAP's ticker to avoid jitter when using ScrollTrigger
     import("gsap").then((gsapModule) => {
-      const gsap = gsapModule.default || gsapModule;
+      if (isUnmounted) return;
+      gsapInstance = gsapModule.default || gsapModule;
       
       lenis.on("scroll", ScrollTrigger.update);
       
-      gsap.ticker.add((time) => {
+      tickerCallback = (time) => {
         lenis.raf(time * 1000);
-      });
+      };
       
-      gsap.ticker.lagSmoothing(0);
+      gsapInstance.ticker.add(tickerCallback);
+      gsapInstance.ticker.lagSmoothing(0);
     }).catch(() => {
+      if (isUnmounted) return;
       // Fallback if GSAP isn't loaded on a page
       function raf(time) {
         lenis.raf(time);
@@ -39,6 +46,10 @@ export default function SmoothScroll({ children }) {
     });
 
     return () => {
+      isUnmounted = true;
+      if (gsapInstance && tickerCallback) {
+        gsapInstance.ticker.remove(tickerCallback);
+      }
       lenis.destroy();
     };
   }, []);

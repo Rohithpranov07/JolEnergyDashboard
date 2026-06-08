@@ -303,9 +303,9 @@ export function CinematicHero({
         scrollTrigger: {
           trigger: containerRef.current,
           start: "top top",
-          end: "+=7000",
+          end: "+=1500",
           pin: true,
-          scrub: 0.3,
+          scrub: true,
           anticipatePin: 1,
           fastScrollEnd: true,
           preventOverlaps: true,

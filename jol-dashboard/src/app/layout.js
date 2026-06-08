@@ -1,7 +1,6 @@
 import { Geist } from "next/font/google";
 import "leaflet/dist/leaflet.css";
 import "./globals.css";
-import SmoothScroll from "@/components/SmoothScroll";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,9 +15,9 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${geistSans.variable} h-full antialiased`}>
-      <body className="min-h-full" suppressHydrationWarning>
-        <SmoothScroll>{children}</SmoothScroll>
+    <html lang="en" className={`${geistSans.variable} min-h-screen antialiased`}>
+      <body className="min-h-screen" suppressHydrationWarning>
+        {children}
       </body>
     </html>
   );
