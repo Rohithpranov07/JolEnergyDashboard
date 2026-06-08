@@ -236,6 +236,8 @@ function TypingDots() {
 
 export default function AIInsights() {
   // Section 1 — Narrative
+  const [noApiKey, setNoApiKey] = useState(false);
+
   const [narrativeText, setNarrativeText] = useState("");
   const [narrativeLoading, setNarrativeLoading] = useState(true);
   const [narrativeError, setNarrativeError] = useState(false);
@@ -290,6 +292,8 @@ export default function AIInsights() {
       if (narrativeResult.status === "fulfilled") {
         setNarrativeText(narrativeResult.value);
       } else {
+        const msg = narrativeResult.reason?.message || "";
+        if (msg.includes("NO_KEY") || msg.includes("401")) setNoApiKey(true);
         setNarrativeError(true);
       }
       setNarrativeLoading(false);
@@ -409,6 +413,30 @@ export default function AIInsights() {
 
   return (
     <div className="space-y-4">
+      {/* API key banner */}
+      {noApiKey && (
+        <div
+          className="flex items-center justify-between gap-3 rounded-lg border border-[#B5D4F4] bg-[#D6E8F7] px-4 py-3"
+          role="alert"
+        >
+          <p className="text-sm text-[#0C447C]">
+            Add your Anthropic API key to{" "}
+            <code className="rounded bg-white/60 px-1 font-mono text-[12px]">
+              .env
+            </code>{" "}
+            to enable AI insights.
+          </p>
+          <a
+            href="https://console.anthropic.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="shrink-0 rounded-md bg-[#185FA5] px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-[#0C447C]"
+          >
+            Get API key →
+          </a>
+        </div>
+      )}
+
       {/* ── SECTION 1 — PIPELINE HEALTH NARRATIVE ─────────────────────── */}
       <div className="rounded-lg border border-[#E0E0E0] bg-white p-5">
         <div className="mb-3 flex items-center gap-2">
