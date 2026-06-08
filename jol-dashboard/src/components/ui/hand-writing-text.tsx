@@ -11,7 +11,8 @@ function HandWrittenTitle({
     title = "Hand Written",
     subtitle = "Optional subtitle",
 }: HandWrittenTitleProps) {
-    const draw = {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const draw: any = {
         hidden: { pathLength: 0, opacity: 0 },
         visible: {
             pathLength: 1,
