@@ -1,5 +1,5 @@
 const nextConfig = {
-  compress: true, // Automatically compress components and assets with gzip/brotli
+  compress: true, // Native Next.js compression
   images: {
     remotePatterns: [
       {

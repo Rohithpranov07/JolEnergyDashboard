@@ -303,9 +303,9 @@ export function CinematicHero({
         scrollTrigger: {
           trigger: containerRef.current,
           start: "top top",
-          end: "+=1500",
+          end: "+=2000",
           pin: true,
-          scrub: true,
+          scrub: 2.0,
           anticipatePin: 1,
           fastScrollEnd: true,
           preventOverlaps: true,
@@ -548,7 +548,7 @@ export function CinematicHero({
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                 </svg>
               </Link>
-              
+
               <div className="hidden md:flex mt-5 items-center gap-2 text-[11px] font-medium text-blue-200/70 bg-[#185FA5]/10 w-max px-3 py-1.5 rounded-full border border-blue-400/20 backdrop-blur-sm self-start lg:self-start tracking-wide">
                 <svg className="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
