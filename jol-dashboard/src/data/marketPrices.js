@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// marketPrices.js  —  Jol Energy Dashboard
+// marketPrices.js  –  Jol Energy Dashboard
 //
 // CONTENTS
 //   1. priceHistory      → 30-day daily price series (Jun 7 – Jul 6, 2026)
@@ -17,7 +17,7 @@
 //
 //   30-day series: seeded random walk (±2% daily volatility for Co, ±1.5% Ni,
 //   ±1% LiCarb). Same seed every load = reproducible.  The series starts at
-//   the anchor and steps forward — each day's price is prev × (1 + Δ).
+//   the anchor and steps forward – each day's price is prev × (1 + Δ).
 // ─────────────────────────────────────────────────────────────────────────────
 
 // USD/INR conversion rate (update manually on submission day)
@@ -96,7 +96,7 @@ export const currentPrices = {
       trendDir: "up",
       source:   "Trading Economics",
       sourceUrl:"https://tradingeconomics.com/commodity/cobalt",
-      note:     "LME spot; May 2026 peak — strategic for Jol's NMC recovery margin",
+      note:     "LME spot; May 2026 peak – strategic for Jol's NMC recovery margin",
       color:    "#185FA5",
     },
     {
@@ -191,7 +191,7 @@ export const scrapPriceRef = [
     inrPerKgMid:  65,
     recoveryTier: "Medium",
     primaryMetal: "Li + Ni + Co (NMC 18650)",
-    densityNote:  "Laptop service centres — concentrated supply",
+    densityNote:  "Laptop service centres – concentrated supply",
     color:        "#185FA5",
   },
   {
@@ -202,7 +202,7 @@ export const scrapPriceRef = [
     inrPerKgMid:  105,
     recoveryTier: "High",
     primaryMetal: "Li + Ni (NMC) or Li+Fe (LFP)",
-    densityNote:  "Ola/Ather/TVS service hubs — premium feedstock",
+    densityNote:  "Ola/Ather/TVS service hubs – premium feedstock",
     color:        "#0C447C",
   },
   {
@@ -235,7 +235,7 @@ export const scrapPriceRef = [
     inrPerKgMid:  140,
     recoveryTier: "Highest",
     primaryMetal: "NMC 622/811 or LFP",
-    densityNote:  "EV OEM service centres — highest value per unit",
+    densityNote:  "EV OEM service centres – highest value per unit",
     color:        "#04342C",
   },
 ];
@@ -250,7 +250,7 @@ export const policyTracker = [
     effectiveDate: "2022-08-24",
     authority: "MoEFCC, Govt. of India",
     summary: "EPR obligations on battery producers. Recyclers must register on CPCB portal. Collection targets: 70% by 2026, 90% by 2028.",
-    impact: "High — mandates formal recycling channel; boosts legitimate supply to Jol",
+    impact: "High – mandates formal recycling channel; boosts legitimate supply to Jol",
     sourceUrl: "https://moef.gov.in",
   },
   {
@@ -261,7 +261,7 @@ export const policyTracker = [
     effectiveDate: "2023-04-01",
     authority: "MoEFCC, Govt. of India",
     summary: "Mandatory CPCB registration for all recyclers/refurbishers. Formalises the informal e-waste sector. Strict GPS tracking of waste movement.",
-    impact: "High — eliminates informal competition; all waste must flow through authorised recyclers",
+    impact: "High – eliminates informal competition; all waste must flow through authorised recyclers",
     sourceUrl: "https://moef.gov.in",
   },
   {
@@ -272,7 +272,7 @@ export const policyTracker = [
     effectiveDate: "2019-04-01",
     authority: "Ministry of Heavy Industries",
     summary: "₹10,000Cr subsidy scheme accelerating EV adoption. Creates growing inventory of EV batteries approaching end-of-life by 2026–2028.",
-    impact: "Medium-High — drives future EV battery scrap volume; early mover advantage",
+    impact: "Medium-High – drives future EV battery scrap volume; early mover advantage",
     sourceUrl: "https://heavyindustries.gov.in",
   },
   {
@@ -282,8 +282,8 @@ export const policyTracker = [
     statusColor: "#3B6D11",
     effectiveDate: "2021-05-12",
     authority: "Ministry of Heavy Industries",
-    summary: "₹18,100Cr PLI for 50 GWh domestic cell manufacturing. Amara Raja, Exide, Ola, Reliance are beneficiaries — driving demand for domestic metal salts.",
-    impact: "Very High — creates strategic domestic buyers for Jol's recovered NiSO4/CoSO4/Li2CO3",
+    summary: "₹18,100Cr PLI for 50 GWh domestic cell manufacturing. Amara Raja, Exide, Ola, Reliance are beneficiaries – driving demand for domestic metal salts.",
+    impact: "Very High – creates strategic domestic buyers for Jol's recovered NiSO4/CoSO4/Li2CO3",
     sourceUrl: "https://heavyindustries.gov.in",
   },
 ];
@@ -314,7 +314,7 @@ export const chemistryProfiles = [
     ],
     grossRecoveryFraction: 0.87,
     typicalInputKgPerMonth: 300,
-    note: "Higher Ni, lower Co — recovery value driven by Ni price",
+    note: "Higher Ni, lower Co – recovery value driven by Ni price",
   },
   {
     id:   "LFP",

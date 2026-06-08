@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// buyerLeads.js  —  Jol Energy Dashboard
+// buyerLeads.js  –  Jol Energy Dashboard
 // 20 verified off-taker / buyer leads for recovered metal salts
 //
 // BUYER CATEGORIES
@@ -230,7 +230,7 @@ const raw = [
     consumptionMT: 30,
     source: "TNPCB", sourceUrl: "https://iwma.in",
     verified: true,
-    notes: "SIPCOT Sriperumbudur — buys metal residues for recovery. Local to Jol.",
+    notes: "SIPCOT Sriperumbudur – buys metal residues for recovery. Local to Jol.",
     forceStage: "Contacted",
   },
   {
@@ -247,7 +247,7 @@ const raw = [
     consumptionMT: 40,
     source: "TNPCB", sourceUrl: "https://iwma.in",
     verified: true,
-    notes: "12,000 MTA capacity metal recovery; Kanchipuram — near Jol supply zone",
+    notes: "12,000 MTA capacity metal recovery; Kanchipuram – near Jol supply zone",
     forceStage: "Contacted",
   },
   // ── CELL / GIGAFACTORY MAKERS (strategic long-term buyers) ─────────────────

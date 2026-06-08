@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// collectionPoints.js  —  Jol Energy Dashboard
+// collectionPoints.js  –  Jol Energy Dashboard
 // 32 Li-Ion battery collection / drop-off points with lat/lng for Leaflet map
 //
 // PIN TYPES
@@ -61,10 +61,10 @@ function offset(base, range = 0.04) {
 // COLLECTION POINTS
 // ─────────────────────────────────────────────────────────────────────────────
 const raw = [
-  // ── VERIFIED — PRO collection points (Saahas Zero Waste) ──────────────────
+  // ── VERIFIED – PRO collection points (Saahas Zero Waste) ──────────────────
   {
     id:"CP-001", type:"PRO", verified:true,
-    name:"Saahas Zero Waste — BTM Layout",
+    name:"Saahas Zero Waste – BTM Layout",
     contactPerson:"Mr. Raju", phone:"7022000420",
     address:"#21, MCHS Colony, 16th Main, BTM Stage 2, Bengaluru – 560076",
     city:"Bengaluru", state:"Karnataka",
@@ -76,7 +76,7 @@ const raw = [
   },
   {
     id:"CP-002", type:"PRO", verified:true,
-    name:"Saahas Zero Waste — Koramangala",
+    name:"Saahas Zero Waste – Koramangala",
     contactPerson:"Mr. Raju", phone:"7022000420",
     address:"Koramangala Industrial Layout, Bengaluru – 560034",
     city:"Bengaluru", state:"Karnataka",
@@ -88,7 +88,7 @@ const raw = [
   },
   {
     id:"CP-003", type:"PRO", verified:true,
-    name:"Saahas Zero Waste — Ejipura",
+    name:"Saahas Zero Waste – Ejipura",
     contactPerson:"Mr. Raju", phone:"7022000420",
     address:"Ejipura Main Road, Gowda Muniswamy Garden, Bengaluru – 560095",
     city:"Bengaluru", state:"Karnataka",
@@ -100,7 +100,7 @@ const raw = [
   },
   {
     id:"CP-004", type:"PRO", verified:true,
-    name:"Saahas Zero Waste — Begumpet (Hyderabad)",
+    name:"Saahas Zero Waste – Begumpet (Hyderabad)",
     contactPerson:"Mr. Gnaneshwar", phone:"9866689906",
     address:"1-11-251/5, Vishnu Bhavan, Begumpet, Hyderabad – 500016",
     city:"Hyderabad", state:"Telangana",
@@ -110,10 +110,10 @@ const raw = [
     willingness:"Yes",
     source:"saahaszerowaste.com",
   },
-  // ── VERIFIED — TNPCB authorised recycler intake (Chennai) ─────────────────
+  // ── VERIFIED – TNPCB authorised recycler intake (Chennai) ─────────────────
   {
     id:"CP-005", type:"REGISTRY", verified:true,
-    name:"E-Parisaraa Pvt. Ltd. — Chennai intake",
+    name:"E-Parisaraa Pvt. Ltd. – Chennai intake",
     contactPerson:"[Verify via outreach]", phone:"9940198471",
     address:"Perungudi Industrial Estate, Chennai – 600096",
     city:"Chennai", state:"Tamil Nadu",
@@ -125,7 +125,7 @@ const raw = [
   },
   {
     id:"CP-006", type:"REGISTRY", verified:true,
-    name:"Tritech Systems — Chennai",
+    name:"Tritech Systems – Chennai",
     contactPerson:"[Verify]", phone:"9444036557",
     address:"Arcot Road, Porur, Chennai – 600116",
     city:"Chennai", state:"Tamil Nadu",
@@ -137,7 +137,7 @@ const raw = [
   },
   {
     id:"CP-007", type:"REGISTRY", verified:true,
-    name:"Abishek Enterprises — Ambattur",
+    name:"Abishek Enterprises – Ambattur",
     contactPerson:"[Verify]", phone:"9444488926",
     address:"SIDCO Industrial Estate, Ambattur, Chennai – 600098",
     city:"Chennai", state:"Tamil Nadu",
@@ -149,7 +149,7 @@ const raw = [
   },
   {
     id:"CP-008", type:"REGISTRY", verified:true,
-    name:"Green R2 ReProcessors — Ambattur",
+    name:"Green R2 ReProcessors – Ambattur",
     contactPerson:"[Verify]", phone:"9840067646",
     address:"TASS Industrial Estate, Ambattur, Chennai – 600098",
     city:"Chennai", state:"Tamil Nadu",
@@ -161,7 +161,7 @@ const raw = [
   },
   {
     id:"CP-009", type:"REGISTRY", verified:true,
-    name:"Kalyani Enterprises — Ayanavaram",
+    name:"Kalyani Enterprises – Ayanavaram",
     contactPerson:"[Verify]", phone:"9444050750",
     address:"73 Konnur High Road, Ayanavaram, Chennai – 600023",
     city:"Chennai", state:"Tamil Nadu",
@@ -173,7 +173,7 @@ const raw = [
   },
   {
     id:"CP-010", type:"REGISTRY", verified:true,
-    name:"Param Enterprises — Kovilampakkam",
+    name:"Param Enterprises – Kovilampakkam",
     contactPerson:"[Verify]", phone:"9444029696",
     address:"Plot 3, Periyar Salai, Kovilampakkam, Chennai – 600117",
     city:"Chennai", state:"Tamil Nadu",
@@ -183,10 +183,10 @@ const raw = [
     willingness:"Maybe",
     source:"TNPCB dismantler list",
   },
-  // ── VERIFIED — IndiaMART scrap buyers ──────────────────────────────────────
+  // ── VERIFIED – IndiaMART scrap buyers ──────────────────────────────────────
   {
     id:"CP-011", type:"INDIAMART", verified:true,
-    name:"Sana Technos — Peelamedu",
+    name:"Sana Technos – Peelamedu",
     contactPerson:"[Verify]", phone:"[Request via IndiaMART]",
     address:"Peelamedu, Coimbatore – 641004",
     city:"Coimbatore", state:"Tamil Nadu",
@@ -198,7 +198,7 @@ const raw = [
   },
   {
     id:"CP-012", type:"INDIAMART", verified:true,
-    name:"Sun Steel — Coimbatore",
+    name:"Sun Steel – Coimbatore",
     contactPerson:"[Verify]", phone:"[Request via IndiaMART]",
     address:"Coimbatore, Tamil Nadu",
     city:"Coimbatore", state:"Tamil Nadu",
@@ -210,7 +210,7 @@ const raw = [
   },
   {
     id:"CP-013", type:"INDIAMART", verified:true,
-    name:"Adhitya Marketing and Services — Chennai",
+    name:"Adhitya Marketing and Services – Chennai",
     contactPerson:"[Verify]", phone:"[Request via IndiaMART]",
     address:"Chennai, Tamil Nadu",
     city:"Chennai", state:"Tamil Nadu",
@@ -222,7 +222,7 @@ const raw = [
   },
   {
     id:"CP-014", type:"INDIAMART", verified:true,
-    name:"Venkateswara Metal Mart — Coimbatore",
+    name:"Venkateswara Metal Mart – Coimbatore",
     contactPerson:"[Verify]", phone:"[Request via IndiaMART]",
     address:"Coimbatore, Tamil Nadu",
     city:"Coimbatore", state:"Tamil Nadu",
@@ -234,7 +234,7 @@ const raw = [
   },
   {
     id:"CP-015", type:"REGISTRY", verified:true,
-    name:"E-Parisaraa — Hindupur (AP unit)",
+    name:"E-Parisaraa – Hindupur (AP unit)",
     contactPerson:"[Verify]", phone:"[Verify]",
     address:"Hindupur Industrial Area, Anantapur District, AP – 515201",
     city:"Hindupur", state:"Andhra Pradesh",
@@ -246,7 +246,7 @@ const raw = [
   },
   {
     id:"CP-016", type:"PRO", verified:true,
-    name:"Karo Sambhav — Bengaluru drop-off",
+    name:"Karo Sambhav – Bengaluru drop-off",
     contactPerson:"[Verify]", phone:"[Verify]",
     address:"Whitefield area, Bengaluru",
     city:"Bengaluru", state:"Karnataka",
@@ -258,7 +258,7 @@ const raw = [
   },
   {
     id:"CP-017", type:"REGISTRY", verified:true,
-    name:"Namma E-Waste Kendra — BBMP",
+    name:"Namma E-Waste Kendra – BBMP",
     contactPerson:"[Verify]", phone:"[Verify]",
     address:"BBMP authorised centre, Bengaluru",
     city:"Bengaluru", state:"Karnataka",
@@ -268,10 +268,10 @@ const raw = [
     willingness:"Yes",
     source:"BBMP-authorised e-waste kendra",
   },
-  // ── FIELD-SURVEY PLACEHOLDERS — candidate to verify via Google Maps ────────
+  // ── FIELD-SURVEY PLACEHOLDERS – candidate to verify via Google Maps ────────
   {
     id:"CP-018", type:"FIELD", verified:false,
-    name:"[Mobile repair cluster — Ritchie Street, Chennai]",
+    name:"[Mobile repair cluster – Ritchie Street, Chennai]",
     contactPerson:"[Survey via visit/call]", phone:null,
     address:"Ritchie Street, Park Town, Chennai – 600003",
     city:"Chennai", state:"Tamil Nadu",
@@ -279,11 +279,11 @@ const raw = [
     lat:offset(13.0801), lng:offset(80.2780,0.02),
     nearestHub:"HUB-CHN",
     willingness:"Maybe",
-    source:"Field survey (Google Maps pin — verify)",
+    source:"Field survey (Google Maps pin – verify)",
   },
   {
     id:"CP-019", type:"FIELD", verified:false,
-    name:"[Laptop service centre — Chennai]",
+    name:"[Laptop service centre – Chennai]",
     contactPerson:null, phone:null,
     address:"Nungambakkam / Vadapalani area, Chennai",
     city:"Chennai", state:"Tamil Nadu",
@@ -295,7 +295,7 @@ const raw = [
   },
   {
     id:"CP-020", type:"FIELD", verified:false,
-    name:"[E-scooter service centre — Chennai]",
+    name:"[E-scooter service centre – Chennai]",
     contactPerson:null, phone:null,
     address:"GST Road / Chromepet cluster, Chennai",
     city:"Chennai", state:"Tamil Nadu",
@@ -303,11 +303,11 @@ const raw = [
     lat:offset(13.0010), lng:offset(80.1415,0.03),
     nearestHub:"HUB-CHN",
     willingness:"Maybe",
-    source:"Field survey — Ola/Ather service partner",
+    source:"Field survey – Ola/Ather service partner",
   },
   {
     id:"CP-021", type:"FIELD", verified:false,
-    name:"[Mobile repair market — SP Road, Bengaluru]",
+    name:"[Mobile repair market – SP Road, Bengaluru]",
     contactPerson:null, phone:null,
     address:"SP Road, Shivajinagar, Bengaluru – 560001",
     city:"Bengaluru", state:"Karnataka",
@@ -319,7 +319,7 @@ const raw = [
   },
   {
     id:"CP-022", type:"FIELD", verified:false,
-    name:"[Laptop service centre — Bengaluru]",
+    name:"[Laptop service centre – Bengaluru]",
     contactPerson:null, phone:null,
     address:"Jayanagar / BTM area, Bengaluru",
     city:"Bengaluru", state:"Karnataka",
@@ -331,7 +331,7 @@ const raw = [
   },
   {
     id:"CP-023", type:"FIELD", verified:false,
-    name:"[E-scooter service centre — Bengaluru]",
+    name:"[E-scooter service centre – Bengaluru]",
     contactPerson:null, phone:null,
     address:"Electronic City / Bommanahalli, Bengaluru",
     city:"Bengaluru", state:"Karnataka",
@@ -339,11 +339,11 @@ const raw = [
     lat:offset(12.8399), lng:offset(77.6770,0.025),
     nearestHub:"HUB-BLR",
     willingness:"Maybe",
-    source:"Field survey — Ather/Ola service hub",
+    source:"Field survey – Ather/Ola service hub",
   },
   {
     id:"CP-024", type:"FIELD", verified:false,
-    name:"[E-rickshaw / 3-wheeler garage — Hyderabad]",
+    name:"[E-rickshaw / 3-wheeler garage – Hyderabad]",
     contactPerson:null, phone:null,
     address:"Uppal / LB Nagar area, Hyderabad",
     city:"Hyderabad", state:"Telangana",
@@ -351,11 +351,11 @@ const raw = [
     lat:offset(17.4050), lng:offset(78.5590,0.03),
     nearestHub:"HUB-HYD",
     willingness:"Maybe",
-    source:"Field survey — high 3W EV density",
+    source:"Field survey – high 3W EV density",
   },
   {
     id:"CP-025", type:"FIELD", verified:false,
-    name:"[Laptop refurbisher — Hyderabad]",
+    name:"[Laptop refurbisher – Hyderabad]",
     contactPerson:null, phone:null,
     address:"Abids / Koti electronics market, Hyderabad",
     city:"Hyderabad", state:"Telangana",
@@ -367,7 +367,7 @@ const raw = [
   },
   {
     id:"CP-026", type:"FIELD", verified:false,
-    name:"[UPS / inverter service company — Chennai]",
+    name:"[UPS / inverter service company – Chennai]",
     contactPerson:null, phone:null,
     address:"Guindy Industrial Estate, Chennai – 600032",
     city:"Chennai", state:"Tamil Nadu",
@@ -375,11 +375,11 @@ const raw = [
     lat:offset(13.0067), lng:offset(80.2206,0.022),
     nearestHub:"HUB-CHN",
     willingness:"Maybe",
-    source:"Field survey — industrial Li-UPS prevalent",
+    source:"Field survey – industrial Li-UPS prevalent",
   },
   {
     id:"CP-027", type:"FIELD", verified:false,
-    name:"[Telecom tower battery vendor — Bengaluru]",
+    name:"[Telecom tower battery vendor – Bengaluru]",
     contactPerson:null, phone:null,
     address:"Peenya Industrial Area, Bengaluru – 560058",
     city:"Bengaluru", state:"Karnataka",
@@ -387,11 +387,11 @@ const raw = [
     lat:offset(13.0284), lng:offset(77.5220,0.018),
     nearestHub:"HUB-BLR",
     willingness:"Maybe",
-    source:"Field survey — Peenya telecom cluster",
+    source:"Field survey – Peenya telecom cluster",
   },
   {
     id:"CP-028", type:"FIELD", verified:false,
-    name:"[Mobile service chain — Coimbatore]",
+    name:"[Mobile service chain – Coimbatore]",
     contactPerson:null, phone:null,
     address:"DB Road / RS Puram, Coimbatore – 641002",
     city:"Coimbatore", state:"Tamil Nadu",
@@ -403,7 +403,7 @@ const raw = [
   },
   {
     id:"CP-029", type:"FIELD", verified:false,
-    name:"[Mobile service chain — Madurai]",
+    name:"[Mobile service chain – Madurai]",
     contactPerson:null, phone:null,
     address:"Anna Nagar / Bypass Road, Madurai – 625020",
     city:"Madurai", state:"Tamil Nadu",
@@ -415,7 +415,7 @@ const raw = [
   },
   {
     id:"CP-030", type:"FIELD", verified:false,
-    name:"[Electronics repair market — Kochi]",
+    name:"[Electronics repair market – Kochi]",
     contactPerson:null, phone:null,
     address:"MG Road / Convent Road, Ernakulam, Kochi – 682016",
     city:"Kochi", state:"Kerala",
@@ -427,7 +427,7 @@ const raw = [
   },
   {
     id:"CP-031", type:"FIELD", verified:false,
-    name:"[Power bank wholesaler — Coimbatore]",
+    name:"[Power bank wholesaler – Coimbatore]",
     contactPerson:null, phone:null,
     address:"Avinashi Road, Coimbatore – 641014",
     city:"Coimbatore", state:"Tamil Nadu",
@@ -439,7 +439,7 @@ const raw = [
   },
   {
     id:"CP-032", type:"FIELD", verified:false,
-    name:"[E-scooter service hub — Hyderabad]",
+    name:"[E-scooter service hub – Hyderabad]",
     contactPerson:null, phone:null,
     address:"Kompally / Bowrampet, Hyderabad",
     city:"Hyderabad", state:"Telangana",
@@ -447,7 +447,7 @@ const raw = [
     lat:offset(17.5300), lng:offset(78.4867,0.03),
     nearestHub:"HUB-HYD",
     willingness:"Maybe",
-    source:"Field survey — Reuze noted coverage here",
+    source:"Field survey – Reuze noted coverage here",
   },
 ];
 

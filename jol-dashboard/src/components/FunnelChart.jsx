@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 // Mix a hex colour toward white by `amt` (0–1).
 function lighten(hex, amt = 0.15) {
@@ -34,11 +34,12 @@ const ROW_H = 44; // px per stage
 export default function FunnelChart({
   stages = [],
   title,
-  orientation = "vertical", // horizontal reserved; modules use vertical
+  orientation = "vertical",
   onStageClick,
 }) {
   const [mounted, setMounted] = useState(false);
   const [hovered, setHovered] = useState(null);
+  const containerRef = useRef(null);
 
   useEffect(() => {
     const id = requestAnimationFrame(() => setMounted(true));
@@ -48,8 +49,26 @@ export default function FunnelChart({
   const max = Math.max(1, ...stages.map((s) => s.count || 0));
   const clickable = typeof onStageClick === "function";
 
+  /* Click ripple emitter */
+  const emitRipple = (e, color) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const ripple = document.createElement('span');
+    ripple.className = 'ripple';
+    Object.assign(ripple.style, {
+      left: `${x - 20}px`,
+      top: `${y - 20}px`,
+      width: '40px',
+      height: '40px',
+      background: `${color}44`,
+    });
+    e.currentTarget.appendChild(ripple);
+    ripple.addEventListener('animationend', () => ripple.remove());
+  };
+
   return (
-    <div className="w-full">
+    <div className="w-full" ref={containerRef}>
       {title && (
         <h3 className="mb-3 text-sm font-semibold text-[#0D2137]">{title}</h3>
       )}
@@ -70,6 +89,7 @@ export default function FunnelChart({
           const br = (100 + botW) / 2;
           const base = s.color || "#185FA5";
           const fill = hovered === i ? lighten(base) : base;
+          const isHov = hovered === i;
 
           return (
             <div key={s.stage} className="flex items-center gap-3">
@@ -78,9 +98,14 @@ export default function FunnelChart({
               </div>
               <div
                 className={
-                  "relative h-11 flex-1" + (clickable ? " cursor-pointer" : "")
+                  "relative h-11 flex-1 overflow-hidden" + (clickable ? " cursor-pointer" : "")
                 }
-                onClick={clickable ? () => onStageClick(s.stage) : undefined}
+                onClick={(e) => {
+                  if (clickable) {
+                    emitRipple(e, base);
+                    onStageClick(s.stage);
+                  }
+                }}
                 onMouseEnter={() => setHovered(i)}
                 onMouseLeave={() => setHovered(null)}
                 title={`${s.stage}: ${s.count}`}
@@ -90,14 +115,18 @@ export default function FunnelChart({
                   height={ROW_H}
                   viewBox="0 0 100 44"
                   preserveAspectRatio="none"
+                  style={{
+                    filter: isHov ? `drop-shadow(0 2px 8px ${base}44)` : 'none',
+                    transition: 'filter 200ms ease',
+                  }}
                 >
                   <polygon
                     points={`${tl},0 ${tr},0 ${br},44 ${bl},44`}
                     fill={fill}
                     style={{
-                      transform: `scaleX(${mounted ? 1 : 0})`,
+                      transform: `scaleX(${mounted ? (isHov ? 1.03 : 1) : 0})`,
                       transformOrigin: "50% 50%",
-                      transition: "transform 400ms ease-out",
+                      transition: `transform 420ms cubic-bezier(0.34,1.56,0.64,1) ${i * 70}ms, fill 150ms ease`,
                     }}
                   />
                 </svg>

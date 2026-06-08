@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// supplierLeads.js  —  Jol Energy Dashboard
+// supplierLeads.js  –  Jol Energy Dashboard
 // 40 verified Li-Ion battery scrap supplier leads
 //
 // FIELD LEGEND
@@ -57,7 +57,7 @@ function attempts(stage) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// RAW LEADS — real fields first, dummy fields appended by buildLead()
+// RAW LEADS – real fields first, dummy fields appended by buildLead()
 // ─────────────────────────────────────────────────────────────────────────────
 const raw = [
   // ── TAMIL NADU ─────────────────────────────────────────────────────────────
@@ -137,7 +137,7 @@ const raw = [
     volTier: "500-1000 kg/mo",
     disposalMethod: "Authorised recycling",
     source: "TNPCB", sourceUrl: "https://iwma.in/List%20of%20Recyclers.pdf",
-    verified: true, notes: "SEZ unit — requires special logistics clearance",
+    verified: true, notes: "SEZ unit – requires special logistics clearance",
   },
   {
     id: "SUP-007",
@@ -176,7 +176,7 @@ const raw = [
     volTier: "100-500 kg/mo",
     disposalMethod: "Authorised recycling",
     source: "TNPCB", sourceUrl: "https://iwma.in/List%20of%20Recyclers.pdf",
-    verified: true, notes: "SIDCO Sriperumbudur — close to electronics manufacturing belt",
+    verified: true, notes: "SIDCO Sriperumbudur – close to electronics manufacturing belt",
   },
   {
     id: "SUP-010",
@@ -486,7 +486,7 @@ const raw = [
     company: "Reuze (Authorised Battery Recycler)",
     phone: null,
     email: null,
-    address: "Hyderabad (doorstep pickup — Gachibowli, Kompally, Moola Ali, etc.)",
+    address: "Hyderabad (doorstep pickup – Gachibowli, Kompally, Moola Ali, etc.)",
     city: "Hyderabad", state: "Telangana",
     batteryType: ["Li-ion","UPS Li-pack","EV battery","Mobile"],
     volTier: "100-500 kg/mo",
@@ -604,7 +604,7 @@ const raw = [
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
-// BUILD — attach dummy fields to each raw entry
+// BUILD – attach dummy fields to each raw entry
 // ─────────────────────────────────────────────────────────────────────────────
 export const supplierLeads = raw.map((r) => {
   const stage   = pickStage(r.id, r.forceStage);
@@ -631,7 +631,7 @@ export const supplierLeads = raw.map((r) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// DERIVED PIPELINE STATS — used by dashboard KPI cards + funnel chart
+// DERIVED PIPELINE STATS – used by dashboard KPI cards + funnel chart
 // ─────────────────────────────────────────────────────────────────────────────
 export const supplierStats = (() => {
   const total     = supplierLeads.length;

@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { PromptInputBox } from "./ui/ai-prompt-box.jsx";
+import { HandWrittenTitle } from "./ui/hand-writing-text.jsx";
 import { supplierLeads, supplierStats } from "../data/supplierLeads.js";
 import { buyerLeads, buyerStats } from "../data/buyerLeads.js";
 import { collectionStats } from "../data/collectionPoints.js";
@@ -66,7 +68,7 @@ function narrativeFallback() {
   const { total, citiesCount, staleLeads, tonPlusTier } = supplierStats;
   return (
     `Your supplier pipeline has ${total} leads across ${citiesCount} cities. ` +
-    `${staleLeads} leads in Lead stage have not been contacted in 14+ days — ` +
+    `${staleLeads} leads in Lead stage have not been contacted in 14+ days – ` +
     `these are your top priority. ${tonPlusTier} leads are at 1-Ton+ tier, ` +
     `representing ${((tonPlusTier / total) * 100).toFixed(0)}% of your high-value pipeline.`
   );
@@ -111,7 +113,7 @@ function buildAlerts() {
     alerts.push({
       id: "cobalt",
       severity: "info",
-      message: `Cobalt up ${change}% in 30 days — NMC recovery margin impact: +₹${impact}/kg`,
+      message: `Cobalt up ${change}% in 30 days – NMC recovery margin impact: +₹${impact}/kg`,
     });
   }
 
@@ -119,7 +121,7 @@ function buildAlerts() {
     alerts.push({
       id: "field",
       severity: "warn",
-      message: `${collectionStats.field} collection points are unverified field placeholders — schedule ground surveys in Chennai and Bengaluru`,
+      message: `${collectionStats.field} collection points are unverified field placeholders – schedule ground surveys in Chennai and Bengaluru`,
     });
   }
 
@@ -127,7 +129,7 @@ function buildAlerts() {
     alerts.push({
       id: "loi",
       severity: "tip",
-      message: `${buyerStats.highLoiCount} buyers have ≥50% LOI probability — prioritise formal proposal to Nicomet, Epsilon, and Opera Chemisol`,
+      message: `${buyerStats.highLoiCount} buyers have ≥50% LOI probability – prioritise formal proposal to Nicomet, Epsilon, and Opera Chemisol`,
     });
   }
 
@@ -235,24 +237,23 @@ function TypingDots() {
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export default function AIInsights() {
-  // Section 1 — Narrative
+  // Section 1 – Narrative
   const [noApiKey, setNoApiKey] = useState(false);
 
   const [narrativeText, setNarrativeText] = useState("");
   const [narrativeLoading, setNarrativeLoading] = useState(true);
   const [narrativeError, setNarrativeError] = useState(false);
 
-  // Section 2 — City recommendation
+  // Section 2 – City recommendation
   const [cityText, setCityText] = useState("");
   const [cityLoading, setCityLoading] = useState(true);
   const [cityError, setCityError] = useState(false);
 
-  // Section 3 — Alerts
+  // Section 3 – Alerts
   const [dismissedIds, setDismissedIds] = useState(new Set());
 
-  // Section 4 — Chat
+  // Section 4 – Chat
   const [chatMessages, setChatMessages] = useState([]);
-  const [chatInput, setChatInput] = useState("");
   const [streaming, setStreaming] = useState(false);
   const chatEndRef = useRef(null);
 
@@ -270,10 +271,10 @@ export default function AIInsights() {
     hasFetched.current = true;
 
     const narrativeSystem =
-      "You are a business analyst assistant for Jol Energy, a Li-ion battery recycling startup. Analyse the pipeline data and give a 2-3 sentence business narrative. Be specific with numbers. Be direct and actionable. No preamble, no headers — just the narrative paragraph.";
+      "You are a business analyst assistant for Jol Energy, a Li-ion battery recycling startup. Analyse the pipeline data and give a 2-3 sentence business narrative. Be specific with numbers. Be direct and actionable. No preamble, no headers – just the narrative paragraph.";
 
     const citySystem =
-      "You are a business development advisor for Jol Energy. Recommend the single best city to prioritise for supplier outreach next week. Give ONE city and ONE specific reason based on the data. Format: CITY: [name] — [one sentence reason]. No other text.";
+      "You are a business development advisor for Jol Energy. Recommend the single best city to prioritise for supplier outreach next week. Give ONE city and ONE specific reason based on the data. Format: CITY: [name] – [one sentence reason]. No other text.";
 
     (async () => {
       const [narrativeResult, cityResult] = await Promise.allSettled([
@@ -318,9 +319,8 @@ export default function AIInsights() {
   const activeAlerts = MODULE_ALERTS.filter((a) => !dismissedIds.has(a.id));
 
   async function sendChat(text) {
-    const question = (text ?? chatInput).trim();
+    const question = text?.trim();
     if (!question || streaming) return;
-    setChatInput("");
 
     const userMsg = { role: "user", content: question };
     const nextMessages = [...chatMessages, userMsg];
@@ -393,7 +393,7 @@ export default function AIInsights() {
         {
           role: "assistant",
           content: isNoKey
-            ? "API unavailable — check NEXT_PUBLIC_ANTHROPIC_KEY in .env"
+            ? "API unavailable – check NEXT_PUBLIC_ANTHROPIC_KEY in .env"
             : `Sorry, I couldn't fetch a response. (${msg})`,
         },
       ]);
@@ -402,17 +402,25 @@ export default function AIInsights() {
     }
   }
 
-  function handleChatKey(e) {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      sendChat();
-    }
-  }
+
 
   const fallbackCity = computeFallbackCity();
 
   return (
-    <div className="space-y-4">
+    <div className="section-stagger space-y-4">
+      {/* ═══ 0 · EDITORIAL HEADER ══════════════════════════════════════════ */}
+      <div className="glass-card rounded-xl p-5 flex flex-col items-center justify-center gap-4 w-full relative" style={{ background: "rgba(255,255,255,0.85)", backdropFilter: "blur(14px)", boxShadow: "0 1px 2px rgba(17,24,39,0.04), 0 6px 24px rgba(17,24,39,0.06)", border: "1px solid rgba(17,24,39,0.07)" }}>
+        <div className="w-full relative">
+          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.11em", textTransform: "uppercase", color: "var(--text-muted)", marginBottom: -20 }} className="text-center">
+            AI Assistant · M5
+          </div>
+          <HandWrittenTitle
+            title="AI Insights"
+            subtitle="Explore logistics optimization, pricing analysis, and business intelligence with Claude"
+          />
+        </div>
+      </div>
+
       {/* API key banner */}
       {noApiKey && (
         <div
@@ -430,15 +438,15 @@ export default function AIInsights() {
             href="https://console.anthropic.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="shrink-0 rounded-md bg-[#185FA5] px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-[#0C447C]"
+            className="pressable shrink-0 rounded-md bg-[#185FA5] px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-[#0C447C]"
           >
             Get API key →
           </a>
         </div>
       )}
 
-      {/* ── SECTION 1 — PIPELINE HEALTH NARRATIVE ─────────────────────── */}
-      <div className="rounded-lg border border-[#E0E0E0] bg-white p-5">
+      {/* ── SECTION 1 – PIPELINE HEALTH NARRATIVE ─────────────────────── */}
+      <div className="glass-card rounded-xl p-5">
         <div className="mb-3 flex items-center gap-2">
           <span className="inline-block h-2.5 w-2.5 rounded-full bg-[#A32D2D]" />
           <h2 className="text-sm font-bold text-[#0D2137]">
@@ -469,8 +477,8 @@ export default function AIInsights() {
         </p>
       </div>
 
-      {/* ── SECTION 2 — CITY RECOMMENDATION ──────────────────────────────── */}
-      <div className="rounded-lg border border-[#E0E0E0] bg-white p-5">
+      {/* ── SECTION 2 – CITY RECOMMENDATION ──────────────────────────────── */}
+      <div className="glass-card rounded-xl p-5">
         <div className="mb-3 flex items-center gap-2">
           <span className="inline-block h-2.5 w-2.5 rounded-full bg-[#A32D2D]" />
           <h2 className="text-sm font-bold text-[#0D2137]">
@@ -511,8 +519,8 @@ export default function AIInsights() {
         </p>
       </div>
 
-      {/* ── SECTION 3 — SMART ALERTS ──────────────────────────────────────── */}
-      <div className="rounded-lg border border-[#E0E0E0] bg-white p-5">
+      {/* ── SECTION 3 – SMART ALERTS ──────────────────────────────────────── */}
+      <div className="glass-card rounded-xl p-5">
         <div className="mb-3 flex items-center gap-2">
           <span className="inline-block h-2.5 w-2.5 rounded-full bg-[#A32D2D]" />
           <h2 className="text-sm font-bold text-[#0D2137]">
@@ -525,7 +533,7 @@ export default function AIInsights() {
 
         {activeAlerts.length === 0 ? (
           <p className="text-sm text-[#888780]">
-            No active alerts — all checks passed.
+            No active alerts – all checks passed.
           </p>
         ) : (
           <div className="space-y-2">
@@ -536,15 +544,15 @@ export default function AIInsights() {
         )}
       </div>
 
-      {/* ── SECTION 4 — ASK YOUR DATA ────────────────────────────────────── */}
-      <div className="rounded-lg border border-[#E0E0E0] bg-white p-5">
+      {/* ── SECTION 4 – ASK YOUR DATA ────────────────────────────────────── */}
+      <div className="glass-card rounded-xl p-5 border border-[#333333]/30">
         <div className="mb-1 flex items-center gap-2">
-          <span className="inline-block h-2.5 w-2.5 rounded-full bg-[#A32D2D]" />
+          <span className="inline-block h-2.5 w-2.5 rounded-full bg-[#8B5CF6] animate-pulse" />
           <h2 className="text-sm font-bold text-[#0D2137]">
             Ask your pipeline data
           </h2>
-          <span className="rounded-full bg-[#FCEBEB] px-2 py-0.5 text-[10px] font-semibold text-[#A32D2D]">
-            streaming
+          <span className="rounded-full bg-[#8B5CF6]/15 px-2 py-0.5 text-[10px] font-semibold text-[#8B5CF6]">
+            AI Neural Engine
           </span>
         </div>
         <p className="mb-3 text-[12px] text-[#888780]">
@@ -559,7 +567,7 @@ export default function AIInsights() {
                 key={s}
                 type="button"
                 onClick={() => sendChat(s)}
-                className="rounded-full border border-[#E0E0E0] px-3 py-1 text-[12px] text-[#555555] transition-colors hover:border-[#A32D2D] hover:text-[#A32D2D]"
+                className="pressable rounded-full bg-[#1A1B20]/40 border border-[#444444]/60 px-3 py-1.5 text-[11px] text-[#A0A5B5] transition-all hover:bg-[#2A2C35] hover:border-[#9b87f5]/50 hover:text-white"
               >
                 {s}
               </button>
@@ -568,25 +576,23 @@ export default function AIInsights() {
         )}
 
         {/* Chat history */}
-        <div className="mb-3 max-h-80 min-h-15 space-y-2 overflow-y-auto rounded-lg bg-[#F8F9FA] p-3">
+        <div className="mb-3 max-h-80 min-h-15 space-y-3 overflow-y-auto rounded-2xl bg-[#16171A]/95 border border-[#333333]/45 p-4 shadow-inner">
           {chatMessages.length === 0 ? (
-            <p className="text-[13px] text-[#888780]">
-              No messages yet. Try a question above or type below.
+            <p className="text-[13px] text-[#888780] italic text-center py-4">
+              No messages yet. Ask a question below or choose a suggestion.
             </p>
           ) : (
             chatMessages.map((m, i) => (
               <div
                 key={i}
-                className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
+                className={`chat-msg flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
               >
                 <div
-                  className="max-w-[80%] px-3 py-2 text-[13px] leading-relaxed"
-                  style={{
-                    background:
-                      m.role === "user" ? "#185FA5" : "#F0F6FC",
-                    color: m.role === "user" ? "#FFFFFF" : "#0D2137",
-                    borderRadius: 8,
-                  }}
+                  className={`max-w-[80%] px-4 py-2.5 text-[13px] leading-relaxed border shadow-md ${
+                    m.role === "user"
+                      ? "border-[#444444]/80 text-white bg-gradient-to-tr from-[#1E2025] to-[#2B2D35] rounded-2xl rounded-tr-none"
+                      : "border-[#333333]/50 text-gray-100 bg-[#1F2023]/65 rounded-2xl rounded-tl-none"
+                  }`}
                 >
                   {m.content ||
                     (streaming && i === chatMessages.length - 1 ? (
@@ -602,26 +608,13 @@ export default function AIInsights() {
         </div>
 
         {/* Input */}
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={chatInput}
-            onChange={(e) => setChatInput(e.target.value)}
-            onKeyDown={handleChatKey}
-            placeholder="Ask about your pipeline data…"
-            disabled={streaming}
-            className="flex-1 rounded-lg border border-[#E0E0E0] px-3 py-2 text-sm outline-none transition-colors focus:border-[#A32D2D] disabled:opacity-60"
-          />
-          <button
-            type="button"
-            onClick={() => sendChat()}
-            disabled={!chatInput.trim() || streaming}
-            className="rounded-lg px-4 py-2 text-sm font-semibold text-white transition-opacity disabled:opacity-50"
-            style={{ background: "#A32D2D" }}
-          >
-            {streaming ? "…" : "Send"}
-          </button>
-        </div>
+        <PromptInputBox
+          onSend={(msg) => sendChat(msg)}
+          isLoading={streaming}
+          placeholder="Ask about your pipeline data..."
+          className="border-[#444444]/60 bg-[#16171A]"
+        />
+
         <p className="mt-2 text-[11px] text-[#888888]">
           claude-sonnet-4-20250514 · max 400 tokens · context: live pipeline
           data

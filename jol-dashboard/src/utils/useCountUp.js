@@ -28,7 +28,7 @@ export default function useCountUp(target, duration = 1200, enabled = true) {
     const start = performance.now();
 
     // setValue only runs inside the async rAF callback (not synchronously in
-    // the effect body) — keeps the count-up smooth without cascading renders.
+    // the effect body) – keeps the count-up smooth without cascading renders.
     const tick = (now) => {
       const t = Math.min((now - start) / duration, 1);
       setValue(Math.round(target * ease(t)));

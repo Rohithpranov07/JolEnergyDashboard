@@ -19,6 +19,7 @@ import {
   calcRecoveryValueINR,
 } from "../data/marketPrices.js";
 import KPICard from "./KPICard.jsx";
+import { HandWrittenTitle } from "./ui/hand-writing-text.jsx";
 
 const LINE_METALS = [
   { key: "cobalt", dataKey: "cobalt_usd", label: "Cobalt", color: "#185FA5", axis: "left" },
@@ -42,18 +43,18 @@ function scrapTier(row) {
   return m >= 120 ? "High" : m >= 60 ? "Medium" : "Low";
 }
 function impactColor(impact) {
-  const first = (impact || "").trim().split(/[\s—-]+/)[0].toLowerCase();
+  const first = (impact || "").trim().split(/[\s–-]+/)[0].toLowerCase();
   if (first === "high") return "#27500A";
   if (first === "medium") return "#B45309";
-  if (first === "low") return "#888780";
-  return "#444444";
+  if (first === "low") return "var(--text-secondary)";
+  return "var(--text-secondary)";
 }
 
 function PriceTooltip({ active, payload }) {
   if (!active || !payload || !payload.length) return null;
   const date = payload[0].payload.date;
   return (
-    <div className="rounded-md bg-[#0D2137] px-3 py-2 text-[12px] text-white shadow-lg">
+    <div className="rounded-md bg-[var(--bg-elevated)] px-3 py-2 text-[12px] text-white shadow-lg">
       <div className="mb-1 font-semibold">Date: {date}</div>
       {payload.map((p) => (
         <div key={p.dataKey} style={{ color: p.stroke }}>
@@ -87,14 +88,27 @@ export default function MarketIntelligence() {
   const toggleLine = (k) => setVisible((v) => ({ ...v, [k]: !v[k] }));
 
   const showToast = () => {
-    setToast("Rate updated to ₹95.0 (demo — connect live API for production)");
+    setToast("Rate updated to ₹95.0 (demo – connect live API for production)");
     if (toastTimer.current) clearTimeout(toastTimer.current);
     toastTimer.current = setTimeout(() => setToast(""), 3500);
   };
 
   return (
     <div className="space-y-5">
-      {/* ROW 1 — METAL PRICE KPI CARDS + SPARKLINES */}
+      {/* ═══ 0 · EDITORIAL HEADER ══════════════════════════════════════════ */}
+      <div className="rounded-2xl border border-[var(--border-default)] bg-[var(--bg-surface)] p-5 flex flex-col items-center justify-center gap-4 w-full relative" style={{ background: "rgba(255,255,255,0.85)", backdropFilter: "blur(14px)", boxShadow: "0 1px 2px rgba(17,24,39,0.04), 0 6px 24px rgba(17,24,39,0.06)" }}>
+        <div className="w-full relative">
+          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.11em", textTransform: "uppercase", color: "var(--text-muted)", marginBottom: -20 }} className="text-center">
+
+          </div>
+          <HandWrittenTitle
+            title="Market Intelligence"
+            subtitle={`Cobalt $${currentPrices.metals[0].usdPerMT.toLocaleString()}/MT · Nickel $${currentPrices.metals[1].usdPerMT.toLocaleString()}/MT · Lithium Carbonate $${currentPrices.metals[2].usdPerMT.toLocaleString()}/MT`}
+          />
+        </div>
+      </div>
+
+      {/* ROW 1 – METAL PRICE KPI CARDS + SPARKLINES */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {currentPrices.metals.map((m) => (
           <div key={m.id} className="flex flex-col">
@@ -103,10 +117,10 @@ export default function MarketIntelligence() {
               label={`${m.name} (${m.formula})`}
               subtext={`₹${m.inrPerKg.toLocaleString()}/kg · ${trendArrow(m.trendDir)}${m.trend}`}
               color={m.color}
-              source={`${m.source} — ${m.sourceUrl}`}
+              source={`${m.source} – ${m.sourceUrl}`}
             />
             {sparklines[m.id] && (
-              <div className="mt-1 rounded-md border border-[#EEEEEE] bg-white px-1 py-0.5">
+              <div className="mt-1 rounded-md border border-[var(--border-default)] bg-[var(--bg-surface)] px-1 py-0.5">
                 <ResponsiveContainer width="100%" height={40}>
                   <LineChart data={sparklines[m.id].map((v) => ({ v }))}>
                     <YAxis hide domain={["dataMin", "dataMax"]} />
@@ -126,12 +140,12 @@ export default function MarketIntelligence() {
         ))}
       </div>
 
-      {/* ROW 2 — 30-DAY PRICE CHART */}
-      <div className="rounded-lg border border-[#E0E0E0] bg-white p-4">
+      {/* ROW 2 – 30-DAY PRICE CHART */}
+      <div className="rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] p-4">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <h3 className="text-sm font-semibold text-[#0D2137]">
+          <h3 className="text-sm font-semibold text-[var(--text-primary)]">
             30-day battery metal spot prices ·{" "}
-            <span className="font-normal text-[#888780]">
+            <span className="font-normal text-[var(--text-secondary)]">
               Source: Trading Economics / SMM
             </span>
           </h3>
@@ -147,12 +161,12 @@ export default function MarketIntelligence() {
                   style={{
                     borderColor: m.color,
                     background: on ? m.color : "transparent",
-                    color: on ? "#FFFFFF" : m.color,
+                    color: on ? "var(--bg-surface)" : m.color,
                   }}
                 >
                   <span
                     className="inline-block h-2 w-2 rounded-full"
-                    style={{ background: on ? "#FFFFFF" : m.color }}
+                    style={{ background: on ? "var(--bg-surface)" : m.color }}
                   />
                   {m.label}
                 </button>
@@ -167,10 +181,10 @@ export default function MarketIntelligence() {
           >
             <XAxis
               dataKey="dateShort"
-              tick={{ fontSize: 11, fill: "#888780" }}
+              tick={{ fontSize: 11, fill: "var(--text-secondary)" }}
               interval={4}
               tickLine={false}
-              axisLine={{ stroke: "#E0E0E0" }}
+              axisLine={{ stroke: "var(--border-default)" }}
             />
             <YAxis
               yAxisId="left"
@@ -226,20 +240,20 @@ export default function MarketIntelligence() {
         </ResponsiveContainer>
       </div>
 
-      {/* ROW 3 — MARGIN CALCULATOR (55) + SCRAP TABLE (45) */}
+      {/* ROW 3 – MARGIN CALCULATOR (55) + SCRAP TABLE (45) */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-11">
         {/* margin calculator */}
-        <div className="rounded-lg border border-[#E0E0E0] bg-white p-4 lg:col-span-6">
-          <h3 className="text-sm font-semibold text-[#0D2137]">
+        <div className="rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] p-4 lg:col-span-6">
+          <h3 className="text-sm font-semibold text-[var(--text-primary)]">
             Recovery margin calculator
           </h3>
-          <p className="mb-4 text-[12px] text-[#888780]">
+          <p className="mb-4 text-[12px] text-[var(--text-secondary)]">
             Estimate monthly net recovery value from battery feedstock
           </p>
 
           {/* input volume */}
           <label className="mb-4 block">
-            <span className="text-[13px] font-medium text-[#333333]">
+            <span className="text-[13px] font-medium text-[var(--text-secondary)]">
               Monthly input volume: {inputKg.toLocaleString()} kg
             </span>
             <input
@@ -266,9 +280,9 @@ export default function MarketIntelligence() {
                   onClick={() => setChemId(c.id)}
                   className="flex-1 rounded-md border px-2 py-1.5 text-[13px] font-medium transition-colors"
                   style={{
-                    borderColor: on ? "#185FA5" : "#E0E0E0",
-                    background: on ? "#185FA5" : "#FFFFFF",
-                    color: on ? "#FFFFFF" : "#444444",
+                    borderColor: on ? "#185FA5" : "var(--border-default)",
+                    background: on ? "#185FA5" : "var(--bg-surface)",
+                    color: on ? "var(--bg-surface)" : "var(--text-secondary)",
                   }}
                 >
                   {short}
@@ -276,13 +290,13 @@ export default function MarketIntelligence() {
               );
             })}
           </div>
-          <p className="mb-4 text-[12px] italic text-[#888780]">
+          <p className="mb-4 text-[12px] italic text-[var(--text-secondary)]">
             {chemistry.note}
           </p>
 
           {/* processing cost */}
           <label className="mb-4 block">
-            <span className="text-[13px] font-medium text-[#333333]">
+            <span className="text-[13px] font-medium text-[var(--text-secondary)]">
               Processing cost: ₹{procCost}/kg
             </span>
             <input
@@ -298,7 +312,7 @@ export default function MarketIntelligence() {
           </label>
 
           {/* output box */}
-          <div className="rounded-lg bg-[#0D2137] p-4 text-white">
+          <div className="rounded-lg bg-[var(--bg-elevated)] p-4 text-white">
             <div className="flex justify-between text-[13px]">
               <span className="text-gray-300">Gross recovery value</span>
               <span>₹{result.grossINR.toLocaleString()}</span>
@@ -318,21 +332,21 @@ export default function MarketIntelligence() {
               = ₹{result.netPerKgINR.toLocaleString()}/kg input
             </div>
           </div>
-          <p className="mt-2 text-[11px] text-[#888780]">
+          <p className="mt-2 text-[11px] text-[var(--text-secondary)]">
             Based on latest prices. Real margins depend on battery condition,
             actual recovery yield, and market pricing at time of sale.
           </p>
         </div>
 
         {/* scrap price reference */}
-        <div className="rounded-lg border border-[#E0E0E0] bg-white p-4 lg:col-span-5">
-          <h3 className="mb-3 text-sm font-semibold text-[#0D2137]">
+        <div className="rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] p-4 lg:col-span-5">
+          <h3 className="mb-3 text-sm font-semibold text-[var(--text-primary)]">
             Battery scrap price reference
           </h3>
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-[12px]">
               <thead>
-                <tr className="border-b border-[#E0E0E0] text-left text-[#666666]">
+                <tr className="border-b border-[var(--border-default)] text-left text-[var(--text-secondary)]">
                   <th className="py-1.5 pr-2 font-semibold">Category</th>
                   <th className="px-1 py-1.5 font-semibold">Avg wt</th>
                   <th className="px-1 py-1.5 font-semibold">INR/kg</th>
@@ -344,15 +358,15 @@ export default function MarketIntelligence() {
                   const tier = scrapTier(r);
                   const tc = TIER_COLOR[tier];
                   return (
-                    <tr key={i} className="border-b border-[#F1F1F1]">
+                    <tr key={i} className="border-b border-[var(--border-subtle)]">
                       <td
-                        className="py-1.5 pr-2 font-medium text-[#0D2137]"
+                        className="py-1.5 pr-2 font-medium text-[var(--text-primary)]"
                         style={{ borderLeft: `3px solid ${r.color}`, paddingLeft: 8 }}
                       >
                         {r.category}
                       </td>
-                      <td className="px-1 py-1.5 text-[#444]">{r.avgWeightG} g</td>
-                      <td className="px-1 py-1.5 text-[#444]">
+                      <td className="px-1 py-1.5 text-[var(--text-secondary)]">{r.avgWeightG} g</td>
+                      <td className="px-1 py-1.5 text-[var(--text-secondary)]">
                         ₹{r.inrPerKgMin}–{r.inrPerKgMax}
                       </td>
                       <td className="px-1 py-1.5">
@@ -372,27 +386,27 @@ export default function MarketIntelligence() {
         </div>
       </div>
 
-      {/* ROW 4 — POLICY TRACKER */}
-      <div className="rounded-lg border border-[#E0E0E0] bg-white p-4">
-        <h3 className="mb-3 text-sm font-semibold text-[#0D2137]">
+      {/* ROW 4 – POLICY TRACKER */}
+      <div className="rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] p-4">
+        <h3 className="mb-3 text-sm font-semibold text-[var(--text-primary)]">
           Policy &amp; regulatory tracker
         </h3>
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           {policyTracker.map((p) => (
             <div
               key={p.id}
-              className="rounded-md border border-[#EFEFEF] bg-white p-3"
+              className="rounded-md border border-[var(--border-default)] bg-[var(--bg-surface)] p-3"
               style={{ borderLeft: "3px solid #27500A" }}
             >
               <div className="mb-1 flex items-start justify-between gap-2">
-                <h4 className="text-[14px] font-bold text-[#0D2137]">
+                <h4 className="text-[14px] font-bold text-[var(--text-primary)]">
                   {p.title}
                 </h4>
                 <span className="shrink-0 rounded-full bg-[#EAF3DE] px-2 py-0.5 text-[11px] font-semibold text-[#27500A]">
                   {p.status}
                 </span>
               </div>
-              <p className="line-clamp-2 text-[13px] text-[#666666]">
+              <p className="line-clamp-2 text-[13px] text-[var(--text-secondary)]">
                 {p.summary}
               </p>
               <p
@@ -414,16 +428,16 @@ export default function MarketIntelligence() {
         </div>
       </div>
 
-      {/* ROW 5 — CURRENCY TILE */}
+      {/* ROW 5 – CURRENCY TILE */}
       <div className="flex justify-end">
-        <div className="rounded-lg border border-[#E0E0E0] bg-white p-3 text-right">
-          <div className="text-sm font-semibold text-[#0D2137]">
+        <div className="rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] p-3 text-right">
+          <div className="text-sm font-semibold text-[var(--text-primary)]">
             USD/INR: ₹{currentPrices.usdInr} ·{" "}
-            <span className="font-normal text-[#666666]">
+            <span className="font-normal text-[var(--text-secondary)]">
               As of {currentPrices.asOf}
             </span>
           </div>
-          <div className="text-[11px] text-[#888780]">
+          <div className="text-[11px] text-[var(--text-secondary)]">
             Source: exchange-rates.org
           </div>
           <button
@@ -438,7 +452,7 @@ export default function MarketIntelligence() {
 
       {/* toast */}
       {toast && (
-        <div className="fixed bottom-4 right-4 z-[1000] rounded-md bg-[#0D2137] px-4 py-2 text-sm text-white shadow-lg">
+        <div className="fixed bottom-4 right-4 z-[1000] rounded-md bg-[var(--bg-elevated)] px-4 py-2 text-sm text-white shadow-lg">
           {toast}
         </div>
       )}

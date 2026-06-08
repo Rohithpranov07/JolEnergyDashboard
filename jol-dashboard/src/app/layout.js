@@ -8,7 +8,7 @@ const geistSans = Geist({
 });
 
 export const metadata = {
-  title: "Jol Energy — Business Intelligence Dashboard",
+  title: "Jol Energy | Business Intelligence Dashboard",
   description:
     "Live BI dashboard for Jol Energy: supplier & buyer pipelines, collection network, battery-metal market intelligence, and AI insights.",
 };
