@@ -529,15 +529,15 @@ export function CinematicHero({
 
             {/* Left text — bottom on mobile, left on desktop */}
             <div className="card-left-text gsap-reveal order-3 lg:order-1 flex flex-col justify-center text-center lg:text-left z-20 w-full px-4 lg:px-0">
-              <h3 className="text-white text-2xl md:text-3xl lg:text-3xl font-bold mb-3 tracking-tight leading-tight">
+              <h3 className="text-white text-xl md:text-3xl lg:text-3xl font-bold mb-2 md:mb-3 tracking-tight leading-tight">
                 Intelligence for the circular economy.
               </h3>
-              <p className="hidden md:block text-blue-100/60 text-sm font-normal leading-relaxed max-w-sm lg:max-w-none mb-5">
+              <p className="text-blue-100/60 text-xs md:text-sm font-normal leading-relaxed max-w-[280px] md:max-w-sm lg:max-w-none mx-auto lg:mx-0 mb-4 md:mb-5">
                 <span className="text-white font-semibold">Jol Energy</span> brings together supplier inflows, buyer pipelines, geo-mapped collection networks, and live metal-market prices — all in one living dashboard driven by Claude AI.
               </p>
               <Link
                 href={dashboardHref}
-                className="btn-dashboard hidden md:inline-flex items-center gap-3 px-7 py-3 rounded-[1rem] text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-transparent self-start lg:self-start"
+                className="btn-dashboard inline-flex items-center gap-2 md:gap-3 px-5 py-2.5 md:px-7 md:py-3 rounded-full md:rounded-[1rem] text-xs md:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-transparent self-center lg:self-start"
                 aria-label="Open dashboard"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
@@ -549,8 +549,8 @@ export function CinematicHero({
                 </svg>
               </Link>
 
-              <div className="hidden md:flex mt-5 items-center gap-2 text-[11px] font-medium text-blue-200/70 bg-[#185FA5]/10 w-max px-3 py-1.5 rounded-full border border-blue-400/20 backdrop-blur-sm self-start lg:self-start tracking-wide">
-                <svg className="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <div className="flex mt-3 md:mt-5 items-center gap-1.5 md:gap-2 text-[9px] md:text-[11px] font-medium text-blue-200/70 bg-[#185FA5]/10 w-max px-2.5 py-1 md:px-3 md:py-1.5 rounded-full border border-blue-400/20 backdrop-blur-sm self-center lg:self-start tracking-wide">
+                <svg className="w-3 md:w-3.5 h-3 md:h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 Auth & other features in development
