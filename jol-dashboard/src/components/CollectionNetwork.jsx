@@ -18,7 +18,7 @@ import {
 import { collectionStats, hubEconomics } from "../data/collectionPoints.js";
 import KPICard from "./KPICard.jsx";
 import { HandWrittenTitle } from "./ui/hand-writing-text.jsx";
-import Featured_05 from "./ui/globe-feature-section.tsx";
+import GlobeFeatureSection from "./ui/globe-feature-section";
 
 gsap.registerPlugin(useGSAP);
 
@@ -170,7 +170,9 @@ export default function CollectionNetwork() {
           >
             <CollectionMap />
           </div>
-          <Featured_05 />
+
+          {/* Hub economics — moved here to fill left column */}
+          <GlobeFeatureSection />
         </div>
 
         {/* RIGHT – SIDEBAR (35%) */}

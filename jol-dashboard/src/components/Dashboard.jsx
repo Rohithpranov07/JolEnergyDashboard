@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { motion } from "framer-motion";
+import { Layers, Users, MapPin, TrendingUp, Sparkles } from "lucide-react";
 import HealthScore from "./HealthScore.jsx";
 import SupplierPipeline from "./SupplierPipeline.jsx";
 import BuyerPipeline from "./BuyerPipeline.jsx";
@@ -12,6 +13,8 @@ import MarketIntelligence from "./MarketIntelligence.jsx";
 import AIInsights from "./AIInsights.jsx";
 import AlertsPanel from "./AlertsPanel.jsx";
 import ClickSpark from "./ClickSpark.jsx";
+import { FloatingChatWidget } from "./ui/floating-chat-widget-shadcnui";
+import { BGPattern } from "./ui/bg-pattern";
 import { supplierStats } from "../data/supplierLeads.js";
 import { buyerStats } from "../data/buyerLeads.js";
 import { collectionStats } from "../data/collectionPoints.js";
@@ -20,11 +23,11 @@ import { marketStats } from "../data/marketPrices.js";
 gsap.registerPlugin(useGSAP);
 
 const TABS = [
-  { id: "suppliers",  label: "Suppliers",   color: "#3D7FE8", glow: "rgba(61,127,232,0.45)"  },
-  { id: "buyers",     label: "Buyers",      color: "#10B98A", glow: "rgba(16,185,138,0.42)"  },
-  { id: "collection", label: "Collection",  color: "#F59E0B", glow: "rgba(245,158,11,0.42)"  },
-  { id: "market",     label: "Market",      color: "#8B7FF5", glow: "rgba(139,127,245,0.42)" },
-  { id: "ai",         label: "AI Insights", color: "#F0656A", glow: "rgba(240,101,106,0.42)" },
+  { id: "suppliers",  label: "Suppliers",   color: "#3D7FE8", glow: "rgba(61,127,232,0.45)",  Icon: Layers      },
+  { id: "buyers",     label: "Buyers",      color: "#10B98A", glow: "rgba(16,185,138,0.42)",  Icon: Users       },
+  { id: "collection", label: "Collection",  color: "#F59E0B", glow: "rgba(245,158,11,0.42)",  Icon: MapPin      },
+  { id: "market",     label: "Market",      color: "#8B7FF5", glow: "rgba(139,127,245,0.42)", Icon: TrendingUp  },
+  { id: "ai",         label: "AI Insights", color: "#F0656A", glow: "rgba(240,101,106,0.42)", Icon: Sparkles    },
 ];
 
 const BASE_ALERTS = [
@@ -215,6 +218,15 @@ export default function Dashboard() {
     >
     <div ref={rootRef} className="relative min-h-screen overflow-x-hidden">
 
+      {/* ── Dot background pattern ── */}
+      <BGPattern
+        variant="dots"
+        mask="fade-edges"
+        size={24}
+        fill="rgba(17,24,39,0.28)"
+        className="fixed! z-0! pointer-events-none"
+      />
+
       {/* ── Ambient cursor glow ── */}
       <div
         ref={cursorGlowRef}
@@ -237,46 +249,46 @@ export default function Dashboard() {
       {/* ── FLOATING GLASS HEADER ── */}
       <header
         ref={headerRef}
-        className="sticky top-0 z-50 px-3 pt-3 pb-2 sm:px-4"
+        className="sticky top-0 z-50 px-4 pt-3.5 pb-2.5 sm:px-5"
       >
         <div
-          className="glass-header mx-auto flex h-14 max-w-360 items-center justify-between gap-4 rounded-2xl px-3 sm:px-4 transition-shadow duration-300"
+          className="glass-header relative mx-auto flex h-16 max-w-360 items-center justify-between gap-3 overflow-hidden rounded-2xl px-4 sm:px-5 transition-shadow duration-300"
           style={{
             boxShadow: scrolled
-              ? "inset 0 1px 0 rgba(255,255,255,0.9), 0 1px 1px rgba(17,24,39,0.04), 0 16px 40px rgba(17,24,39,0.12)"
+              ? "inset 0 1px 0 rgba(255,255,255,0.9), 0 1px 1px rgba(17,24,39,0.04), 0 20px 48px rgba(17,24,39,0.14)"
               : undefined,
           }}
         >
-          {/* Logo mark */}
-          <div className="flex shrink-0 items-center gap-2.5">
+          {/* Logo */}
+          <div className="flex shrink-0 items-center gap-3">
             <div
               ref={logoRef}
-              className="sheen flex h-8 w-8 shrink-0 items-center justify-center rounded-xl"
+              className="sheen flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
               style={{
-                background: `linear-gradient(135deg, ${active.color} 0%, ${active.color}AA 100%)`,
-                boxShadow: `0 4px 14px ${active.glow}, inset 0 1px 0 rgba(255,255,255,0.4)`,
+                background: `linear-gradient(135deg, ${active.color} 0%, ${active.color}BB 100%)`,
+                boxShadow: `0 3px 10px ${active.glow}, inset 0 1px 0 rgba(255,255,255,0.4)`,
                 transition: "background 500ms ease, box-shadow 500ms ease",
                 willChange: "transform",
               }}
             >
               <BoltIcon />
             </div>
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-[14px] font-bold tracking-[-0.01em] text-[var(--text-primary)]">
+            <div className="flex flex-col justify-center">
+              <span className="text-[14px] font-bold leading-none tracking-[-0.02em] text-(--text-primary)">
                 Jol Energy
               </span>
-              <span
-                className="hidden text-[10px] font-semibold uppercase tracking-[0.14em] sm:inline"
-                style={{ color: active.color, transition: "color 300ms ease" }}
-              >
-                Dashboard
+              <span className="mt-0.5 hidden text-[10px] font-medium leading-none tracking-[0.04em] text-(--text-muted) sm:block">
+                Intelligence Platform
               </span>
             </div>
           </div>
 
+          {/* Divider */}
+          <div className="h-6 w-px shrink-0 bg-[var(--border-default)]" />
+
           {/* Segmented tab nav */}
           <nav
-            className="scrollbar-none relative flex max-w-[calc(100%-120px)] items-center overflow-x-auto rounded-full p-1 sm:max-w-none"
+            className="scrollbar-none relative flex max-w-[calc(100%-160px)] items-center overflow-x-auto rounded-full p-1 sm:max-w-none"
             style={{ background: "var(--bg-nav)" }}
           >
             {TABS.map((t) => {
@@ -288,7 +300,7 @@ export default function Dashboard() {
                   type="button"
                   onClick={() => changeTab(t.id)}
                   aria-current={isActive ? "page" : undefined}
-                  className="pressable relative z-10 whitespace-nowrap rounded-full px-4 py-1.5 text-[13px] font-semibold transition-colors duration-200"
+                  className="pressable relative z-10 whitespace-nowrap rounded-full px-3.5 py-1.5 text-[12.5px] font-semibold transition-colors duration-200 sm:px-4"
                   style={{
                     color: isActive ? "var(--text-primary)" : "var(--text-secondary)",
                   }}
@@ -299,26 +311,40 @@ export default function Dashboard() {
                       className="absolute inset-0 -z-10 rounded-full"
                       style={{
                         background: "var(--bg-tab-indicator)",
-                        '--pill-glow': `${active.color}15`,
-                        boxShadow: `0 1px 2px rgba(17,24,39,0.06), 0 4px 12px rgba(17,24,39,0.10), 0 0 16px 2px var(--pill-glow, rgba(61,127,232,0))`
+                        '--pill-glow': `${active.color}20`,
+                        boxShadow: `0 1px 2px rgba(17,24,39,0.06), 0 4px 14px rgba(17,24,39,0.10), 0 0 20px 2px var(--pill-glow, rgba(61,127,232,0))`
                       }}
                       transition={{ type: "spring", stiffness: 380, damping: 30 }}
                     />
                   )}
-                  {t.label}
+                  <span className="flex items-center gap-1.5">
+                    <t.Icon
+                      size={12}
+                      style={{
+                        color: isActive ? t.color : "var(--text-muted)",
+                        filter: isActive ? `drop-shadow(0 0 4px ${t.color}88)` : "none",
+                        transition: "color 200ms ease, filter 200ms ease",
+                        flexShrink: 0,
+                      }}
+                    />
+                    {t.label}
+                  </span>
                 </button>
               );
             })}
           </nav>
 
+          {/* Divider */}
+          <div className="h-6 w-px shrink-0 bg-[var(--border-default)]" />
+
           {/* Health ring + alert bell */}
-          <div className="flex shrink-0 items-center gap-2">
-            <HealthScore size={42} accentColor={active.color} />
+          <div className="flex shrink-0 items-center gap-1.5">
+            <HealthScore size={40} accentColor={active.color} />
             <button
               type="button"
               onClick={() => setAlertsOpen(true)}
               aria-label={`Alerts (${alertCount} active)`}
-              className="pressable relative rounded-xl p-2 text-[var(--text-secondary)]"
+              className="pressable relative flex h-9 w-9 items-center justify-center rounded-xl text-(--text-secondary) transition-colors"
               onMouseEnter={(e) => { e.currentTarget.style.background = "var(--border-default)"; e.currentTarget.style.color = "var(--text-primary)"; }}
               onMouseLeave={(e) => { e.currentTarget.style.background = ""; e.currentTarget.style.color = ""; }}
             >
@@ -333,6 +359,16 @@ export default function Dashboard() {
               )}
             </button>
           </div>
+
+          {/* Bottom accent line — fades in on scroll */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute bottom-0 left-6 right-6 h-px rounded-full transition-opacity duration-500"
+            style={{
+              background: `linear-gradient(90deg, transparent, ${active.color}55 35%, ${active.color}55 65%, transparent)`,
+              opacity: scrolled ? 1 : 0,
+            }}
+          />
         </div>
       </header>
 
@@ -361,6 +397,9 @@ export default function Dashboard() {
         onClose={() => setAlertsOpen(false)}
         alerts={BASE_ALERTS}
       />
+
+      {/* Floating AI Chat Widget — hidden on AI Insights tab */}
+      {activeTab !== "ai" && <FloatingChatWidget />}
     </div>
     </ClickSpark>
   );

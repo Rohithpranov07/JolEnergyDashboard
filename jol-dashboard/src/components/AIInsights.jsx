@@ -177,41 +177,77 @@ function Skeleton() {
   );
 }
 
+/* ── Reusable section header (eyebrow + title + badge) ──────────────────── */
+function SectionHead({ eyebrow, title, accent, badge }) {
+  return (
+    <div className="mb-4 flex items-center justify-between gap-3">
+      <div className="flex items-center gap-2.5">
+        <span
+          className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
+          style={{ background: accent, boxShadow: `0 0 0 4px ${accent}1F` }}
+        />
+        <div>
+          <div
+            style={{
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+              color: accent,
+            }}
+          >
+            {eyebrow}
+          </div>
+          <h2 className="mt-0.5 text-[15px] font-bold tracking-[-0.01em] text-[var(--text-primary)]">
+            {title}
+          </h2>
+        </div>
+      </div>
+      {badge}
+    </div>
+  );
+}
+
+function Badge({ children, accent, muted }) {
+  return (
+    <span
+      className="shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-semibold"
+      style={
+        muted
+          ? { background: "var(--bg-nav)", color: "var(--text-muted)" }
+          : { background: `${accent}1A`, color: accent }
+      }
+    >
+      {children}
+    </span>
+  );
+}
+
 function AlertCard({ alert, onDismiss }) {
   const styles = {
-    warn: {
-      border: "#B45309",
-      bg: "#FEF3C7",
-      icon: "⚠️",
-      label: "Warning",
-    },
-    info: {
-      border: "#185FA5",
-      bg: "#D6E8F7",
-      icon: "ℹ️",
-      label: "Info",
-    },
-    tip: {
-      border: "#0A7864",
-      bg: "#E0F4EF",
-      icon: "💡",
-      label: "Tip",
-    },
+    warn: { accent: "#B45309", label: "Warning" },
+    info: { accent: "#185FA5", label: "Info" },
+    tip: { accent: "#0A7864", label: "Tip" },
   };
   const s = styles[alert.severity] || styles.info;
   return (
     <div
-      className="flex items-start gap-3 rounded-md border-l-4 p-3"
-      style={{ borderColor: s.border, background: s.bg }}
+      className="group flex items-start gap-3 rounded-xl border border-[var(--border-subtle)] p-3.5 transition-colors hover:border-[var(--border-default)]"
+      style={{ borderLeft: `3px solid ${s.accent}`, background: `${s.accent}0D` }}
     >
-      <span className="shrink-0 text-base">{s.icon}</span>
-      <p className="flex-1 text-[13px] leading-snug text-[#0D2137]">
+      <span
+        className="mt-0.5 shrink-0 rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider"
+        style={{ background: `${s.accent}1F`, color: s.accent }}
+      >
+        {s.label}
+      </span>
+      <p className="flex-1 text-[13px] leading-snug text-[var(--text-primary)]">
         {alert.message}
       </p>
       <button
         type="button"
         onClick={() => onDismiss(alert.id)}
-        className="shrink-0 text-[11px] text-[#888780] underline-offset-2 hover:underline"
+        className="shrink-0 text-[11px] font-medium text-[var(--text-muted)] underline-offset-2 transition-colors hover:text-[var(--text-secondary)] hover:underline"
       >
         Dismiss
       </button>
@@ -236,7 +272,7 @@ function TypingDots() {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export default function AIInsights() {
+export default function AIInsights({ accentColor = "#F0656A" }) {
   // Section 1 – Narrative
   const [noApiKey, setNoApiKey] = useState(false);
 
@@ -409,11 +445,8 @@ export default function AIInsights() {
   return (
     <div className="section-stagger space-y-4">
       {/* ═══ 0 · EDITORIAL HEADER ══════════════════════════════════════════ */}
-      <div className="glass-card rounded-xl p-5 flex flex-col items-center justify-center gap-4 w-full relative" style={{ background: "rgba(255,255,255,0.85)", backdropFilter: "blur(14px)", boxShadow: "0 1px 2px rgba(17,24,39,0.04), 0 6px 24px rgba(17,24,39,0.06)", border: "1px solid rgba(17,24,39,0.07)" }}>
-        <div className="w-full relative">
-          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.11em", textTransform: "uppercase", color: "var(--text-muted)", marginBottom: -20 }} className="text-center">
-            AI Assistant · M5
-          </div>
+      <div className="glass-card flex w-full flex-col items-center justify-center gap-4 p-5">
+        <div className="relative w-full">
           <HandWrittenTitle
             title="AI Insights"
             subtitle="Explore logistics optimization, pricing analysis, and business intelligence with Claude"
@@ -421,15 +454,33 @@ export default function AIInsights() {
         </div>
       </div>
 
+      {/* Work-in-progress banner */}
+      <div
+        className="flex items-center gap-3 rounded-xl border px-4 py-3"
+        style={{ borderColor: `${accentColor}55`, background: `${accentColor}12` }}
+        role="status"
+      >
+        <span
+          className="shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white"
+          style={{ background: accentColor }}
+        >
+          Work in progress
+        </span>
+        <p className="text-[13px] text-[var(--text-primary)]">
+          This module is still under active development — features and outputs may change.
+        </p>
+      </div>
+
       {/* API key banner */}
       {noApiKey && (
         <div
-          className="flex items-center justify-between gap-3 rounded-lg border border-[#B5D4F4] bg-[#D6E8F7] px-4 py-3"
+          className="flex items-center justify-between gap-3 rounded-xl border px-4 py-3"
+          style={{ borderColor: `${accentColor}55`, background: `${accentColor}12` }}
           role="alert"
         >
-          <p className="text-sm text-[#0C447C]">
+          <p className="text-sm text-[var(--text-primary)]">
             Add your Anthropic API key to{" "}
-            <code className="rounded bg-white/60 px-1 font-mono text-[12px]">
+            <code className="rounded bg-[var(--bg-nav)] px-1 font-mono text-[12px]">
               .env
             </code>{" "}
             to enable AI insights.
@@ -438,7 +489,8 @@ export default function AIInsights() {
             href="https://console.anthropic.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="pressable shrink-0 rounded-md bg-[#185FA5] px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-[#0C447C]"
+            className="pressable shrink-0 rounded-lg px-3 py-1.5 text-[12px] font-semibold text-white transition-transform hover:scale-105"
+            style={{ background: accentColor, boxShadow: `0 4px 14px ${accentColor}33` }}
           >
             Get API key →
           </a>
@@ -446,116 +498,124 @@ export default function AIInsights() {
       )}
 
       {/* ── SECTION 1 – PIPELINE HEALTH NARRATIVE ─────────────────────── */}
-      <div className="glass-card rounded-xl p-5">
-        <div className="mb-3 flex items-center gap-2">
-          <span className="inline-block h-2.5 w-2.5 rounded-full bg-[#A32D2D]" />
-          <h2 className="text-sm font-bold text-[#0D2137]">
-            Pipeline health analysis
-          </h2>
-          <span className="rounded-full bg-[#FCEBEB] px-2 py-0.5 text-[10px] font-semibold text-[#A32D2D]">
-            AI-generated
-          </span>
-        </div>
+      <div className="glass-card p-5">
+        <SectionHead
+          eyebrow="Pipeline health"
+          title="Business narrative"
+          accent={accentColor}
+          badge={<Badge accent={accentColor}>AI-generated</Badge>}
+        />
 
         {narrativeLoading ? (
           <Skeleton />
         ) : narrativeError ? (
-          <p className="text-sm leading-relaxed text-[#333333]">
-            {narrativeFallback()}
-          </p>
+          <div
+            className="rounded-xl p-4"
+            style={{ borderLeft: `3px solid ${accentColor}`, background: `${accentColor}0D` }}
+          >
+            <p className="text-sm leading-relaxed text-[var(--text-primary)]">
+              {narrativeFallback()}
+            </p>
+          </div>
         ) : (
-          <div className="rounded-md border-l-4 border-[#185FA5] bg-[#F0F6FC] p-4">
-            <p className="text-sm leading-relaxed text-[#0D2137]">
+          <div
+            className="rounded-xl p-4"
+            style={{ borderLeft: `3px solid ${accentColor}`, background: `${accentColor}0D` }}
+          >
+            <p className="text-sm leading-relaxed text-[var(--text-primary)]">
               {narrativeText}
             </p>
           </div>
         )}
 
-        <p className="mt-2.5 text-[11px] text-[#888888]">
+        <p className="mt-2.5 text-[11px] text-[var(--text-muted)]">
           claude-sonnet-4-20250514 · max 350 tokens · based on live dashboard
           data
         </p>
       </div>
 
-      {/* ── SECTION 2 – CITY RECOMMENDATION ──────────────────────────────── */}
-      <div className="glass-card rounded-xl p-5">
-        <div className="mb-3 flex items-center gap-2">
-          <span className="inline-block h-2.5 w-2.5 rounded-full bg-[#A32D2D]" />
-          <h2 className="text-sm font-bold text-[#0D2137]">
-            Recommended next target city
-          </h2>
-          <span
-            className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
-              !cityError && !cityLoading && cityText
-                ? "bg-[#FCEBEB] text-[#A32D2D]"
-                : "bg-[#F1F1F1] text-[#666666]"
-            }`}
-          >
-            {!cityError && !cityLoading && cityText ? "AI-generated" : "rule-based"}
-          </span>
-        </div>
+      {/* ── SECTIONS 2 + 3 – CITY RECOMMENDATION | SMART ALERTS ──────────── */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        {/* City recommendation */}
+        <div className="glass-card p-5">
+          <SectionHead
+            eyebrow="Next move"
+            title="Recommended target city"
+            accent={accentColor}
+            badge={
+              !cityError && !cityLoading && cityText ? (
+                <Badge accent={accentColor}>AI-generated</Badge>
+              ) : (
+                <Badge muted>rule-based</Badge>
+              )
+            }
+          />
 
-        {cityLoading ? (
-          <Skeleton />
-        ) : cityError ? (
-          <div className="rounded-md border-l-4 border-[#B45309] bg-[#FEF3C7] p-4">
-            <p className="text-sm font-semibold text-[#B45309]">
-              Recommended:{" "}
-              <span className="text-[#0D2137]">{fallbackCity.city}</span>
-            </p>
-            <p className="mt-1 text-[13px] text-[#555555]">
-              {fallbackCity.count} high-value leads with low contact rate.
-            </p>
-          </div>
-        ) : (
-          <div className="rounded-md border-l-4 border-[#B45309] bg-[#FEF3C7] p-4">
-            <p className="text-sm leading-relaxed text-[#0D2137]">{cityText}</p>
-          </div>
-        )}
+          {cityLoading ? (
+            <Skeleton />
+          ) : cityError ? (
+            <div className="rounded-xl p-4" style={{ borderLeft: "3px solid #B45309", background: "rgba(180,83,9,0.07)" }}>
+              <p className="text-sm font-semibold text-[#B45309]">
+                Recommended:{" "}
+                <span className="text-[var(--text-primary)]">{fallbackCity.city}</span>
+              </p>
+              <p className="mt-1 text-[13px] text-[var(--text-secondary)]">
+                {fallbackCity.count} high-value leads with low contact rate.
+              </p>
+            </div>
+          ) : (
+            <div
+              className="rounded-xl p-4"
+              style={{ borderLeft: "3px solid #B45309", background: "rgba(180,83,9,0.07)" }}
+            >
+              <p className="text-sm leading-relaxed text-[var(--text-primary)]">{cityText}</p>
+            </div>
+          )}
 
-        <p className="mt-2.5 text-[11px] text-[#888888]">
-          claude-sonnet-4-20250514 · max 200 tokens · outreach priority for next
-          week
-        </p>
-      </div>
-
-      {/* ── SECTION 3 – SMART ALERTS ──────────────────────────────────────── */}
-      <div className="glass-card rounded-xl p-5">
-        <div className="mb-3 flex items-center gap-2">
-          <span className="inline-block h-2.5 w-2.5 rounded-full bg-[#A32D2D]" />
-          <h2 className="text-sm font-bold text-[#0D2137]">
-            Smart alerts ({activeAlerts.length} active)
-          </h2>
-          <span className="rounded-full bg-[#F1F1F1] px-2 py-0.5 text-[10px] font-semibold text-[#666666]">
-            rule-based
-          </span>
-        </div>
-
-        {activeAlerts.length === 0 ? (
-          <p className="text-sm text-[#888780]">
-            No active alerts – all checks passed.
+          <p className="mt-2.5 text-[11px] text-[var(--text-muted)]">
+            claude-sonnet-4-20250514 · max 200 tokens · outreach priority
           </p>
-        ) : (
-          <div className="space-y-2">
-            {activeAlerts.map((a) => (
-              <AlertCard key={a.id} alert={a} onDismiss={dismissAlert} />
-            ))}
-          </div>
-        )}
+        </div>
+
+        {/* Smart alerts */}
+        <div className="glass-card p-5">
+          <SectionHead
+            eyebrow="Monitoring"
+            title={`Smart alerts (${activeAlerts.length})`}
+            accent={accentColor}
+            badge={<Badge muted>rule-based</Badge>}
+          />
+
+          {activeAlerts.length === 0 ? (
+            <div className="flex h-24 items-center justify-center rounded-xl border border-dashed border-[var(--border-default)]">
+              <p className="text-sm text-[var(--text-muted)]">
+                No active alerts – all checks passed.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-2.5">
+              {activeAlerts.map((a) => (
+                <AlertCard key={a.id} alert={a} onDismiss={dismissAlert} />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* ── SECTION 4 – ASK YOUR DATA ────────────────────────────────────── */}
-      <div className="glass-card rounded-xl p-5 border border-[#333333]/30">
-        <div className="mb-1 flex items-center gap-2">
+      <div className="glass-card p-5">
+        <div className="mb-1 flex items-center gap-2.5">
           <span className="inline-block h-2.5 w-2.5 rounded-full bg-[#8B5CF6] animate-pulse" />
-          <h2 className="text-sm font-bold text-[#0D2137]">
-            Ask your pipeline data
-          </h2>
-          <span className="rounded-full bg-[#8B5CF6]/15 px-2 py-0.5 text-[10px] font-semibold text-[#8B5CF6]">
-            AI Neural Engine
-          </span>
+          <div>
+            <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#8B5CF6]">
+              AI Neural Engine
+            </div>
+            <h2 className="mt-0.5 text-[15px] font-bold tracking-[-0.01em] text-[var(--text-primary)]">
+              Ask your pipeline data
+            </h2>
+          </div>
         </div>
-        <p className="mb-3 text-[12px] text-[#888780]">
+        <p className="mb-3 ml-5 text-[12px] text-[var(--text-secondary)]">
           Ask anything about your suppliers, buyers, or market prices
         </p>
 
@@ -567,7 +627,22 @@ export default function AIInsights() {
                 key={s}
                 type="button"
                 onClick={() => sendChat(s)}
-                className="pressable rounded-full bg-[#1A1B20]/40 border border-[#444444]/60 px-3 py-1.5 text-[11px] text-[#A0A5B5] transition-all hover:bg-[#2A2C35] hover:border-[#9b87f5]/50 hover:text-white"
+                className="pressable rounded-full border px-3 py-1.5 text-[11px] font-medium transition-all"
+                style={{
+                  background: "var(--bg-nav)",
+                  borderColor: "var(--border-default)",
+                  color: "var(--text-secondary)",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = `${accentColor}12`;
+                  e.currentTarget.style.borderColor = `${accentColor}66`;
+                  e.currentTarget.style.color = accentColor;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "var(--bg-nav)";
+                  e.currentTarget.style.borderColor = "var(--border-default)";
+                  e.currentTarget.style.color = "var(--text-secondary)";
+                }}
               >
                 {s}
               </button>

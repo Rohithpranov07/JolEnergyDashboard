@@ -1,161 +1,144 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import createGlobe, { COBEOptions } from "cobe";
 import { ArrowRight } from "lucide-react";
-import createGlobe, { COBEOptions } from "cobe"
-import { useCallback, useEffect, useRef, useState } from "react"
-import { cn } from "@/lib/utils"
+import { useEffect, useRef } from "react";
 
-export default function Featured_05() {
+const GLOBE_CONFIG: Omit<COBEOptions, "width" | "height"> = {
+  devicePixelRatio: 2,
+  phi: 0,
+  theta: 0.25,
+  dark: 1,
+  diffuse: 1.2,
+  mapSamples: 16000,
+  mapBrightness: 6,
+  baseColor: [0.23, 0.36, 0.6],
+  markerColor: [245 / 255, 158 / 255, 11 / 255],
+  glowColor: [0.4, 0.55, 0.85],
+  markers: [
+    { location: [13.0827, 80.2707], size: 0.08 },  // Chennai
+    { location: [12.9716, 77.5946], size: 0.08 },  // Bengaluru
+    { location: [17.385, 78.4867], size: 0.07 },   // Hyderabad
+    { location: [11.0168, 76.9558], size: 0.05 },  // Coimbatore
+    { location: [9.9252, 78.1198], size: 0.04 },   // Madurai
+    { location: [19.076, 72.8777], size: 0.06 },   // Mumbai
+    { location: [28.7041, 77.1025], size: 0.07 },  // Delhi
+    { location: [22.5726, 88.3639], size: 0.05 },  // Kolkata
+    { location: [23.0225, 72.5714], size: 0.05 },  // Ahmedabad
+    { location: [18.5204, 73.8567], size: 0.05 },  // Pune
+  ],
+};
+
+function Globe({ className }: { className?: string }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const pointerInteracting = useRef<number | null>(null);
+  const pointerMovement = useRef(0);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    let phi = 0;
+    let width = 0;
+    let r = 0; // drag rotation offset
+    let frame = 0;
+
+    const onResize = () => {
+      width = canvas.offsetWidth;
+    };
+    window.addEventListener("resize", onResize);
+    onResize();
+
+    // cobe v2 renders a single frame on init; we drive animation via update().
+    const globe = createGlobe(canvas, {
+      ...GLOBE_CONFIG,
+      width: width * 2,
+      height: width * 2,
+    });
+
+    const render = () => {
+      if (pointerInteracting.current === null) phi += 0.005;
+      r = pointerMovement.current / 200;
+      globe.update({
+        phi: phi + r,
+        width: width * 2,
+        height: width * 2,
+      });
+      frame = requestAnimationFrame(render);
+    };
+    frame = requestAnimationFrame(render);
+
+    // fade in once the first real frame is drawn
+    requestAnimationFrame(() => {
+      canvas.style.opacity = "1";
+    });
+
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("resize", onResize);
+      globe.destroy();
+    };
+  }, []);
+
   return (
-    <section className="relative w-full mx-auto overflow-hidden rounded-3xl bg-muted border border-gray-200 dark:border-gray-800 shadow-md px-6 py-16 md:px-16 md:py-24 mt-4">
-      <div className="flex flex-col-reverse items-center justify-between gap-10 md:flex-row">
-        <div className="z-10 max-w-xl text-left">
-          <h1 className="text-3xl font-normal text-gray-900 dark:text-white">
-            Build with <span className="text-primary">Ruixen UI</span>{" "}
-            <span className="text-gray-500 dark:text-gray-400">Empower your team with fast, elegant, and scalable UI components. Ruixen UI brings simplicity and performance to your modern apps.</span>
-          </h1>
-          <Button className="mt-6 inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2 text-sm font-semibold text-background transition hover:bg-black">
-            Join Today <ArrowRight className="h-4 w-4" />
+    <canvas
+      ref={canvasRef}
+      className={cn(
+        "aspect-square h-full w-full opacity-0 transition-opacity duration-700",
+        className,
+      )}
+      onPointerDown={(e) => {
+        pointerInteracting.current = e.clientX - pointerMovement.current;
+        if (canvasRef.current) canvasRef.current.style.cursor = "grabbing";
+      }}
+      onPointerUp={() => {
+        pointerInteracting.current = null;
+        if (canvasRef.current) canvasRef.current.style.cursor = "grab";
+      }}
+      onPointerOut={() => {
+        pointerInteracting.current = null;
+        if (canvasRef.current) canvasRef.current.style.cursor = "grab";
+      }}
+      onMouseMove={(e) => {
+        if (pointerInteracting.current !== null) {
+          pointerMovement.current = e.clientX - pointerInteracting.current;
+        }
+      }}
+      style={{ cursor: "grab" }}
+    />
+  );
+}
+
+export default function GlobeFeatureSection() {
+  return (
+    <section className="relative w-full overflow-hidden rounded-3xl bg-muted border border-gray-200 dark:border-gray-800 shadow-md px-6 py-12 md:px-16 md:py-16">
+      <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
+        {/* Text */}
+        <div className="z-10 max-w-lg text-left">
+          <p className="mb-3 text-xs font-bold uppercase tracking-widest text-amber-500">
+            Collection Network
+          </p>
+          <h2 className="text-3xl font-semibold text-gray-900 dark:text-white leading-snug">
+            Recover more.{" "}
+            <span className="text-primary">Recycle smarter.</span>{" "}
+            <span className="text-gray-500 dark:text-gray-400">
+              Jol Energy&apos;s grassroots collection network spans 11 cities
+              across South India — turning end-of-life batteries into critical
+              metal feedstock.
+            </span>
+          </h2>
+          <Button className="mt-6 inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2 text-sm font-semibold text-background transition hover:opacity-80">
+            Explore network <ArrowRight className="h-4 w-4" />
           </Button>
         </div>
-        <div className="relative h-[180px] w-full max-w-xl">
-          <Globe className="absolute -bottom-20 -right-40 scale-150" />
+
+        {/* Globe — explicit square box so canvas.offsetWidth is non-zero at init */}
+        <div className="relative aspect-square w-70 shrink-0 md:w-85">
+          <Globe />
         </div>
       </div>
     </section>
   );
-}
-
-const GLOBE_CONFIG: COBEOptions = {
-  width: 800,
-  height: 800,
-  onRender: () => {},
-  devicePixelRatio: 2,
-  phi: 0,
-  theta: 0.3,
-  dark: 0,
-  diffuse: 1.2,
-  mapSamples: 16000,
-  mapBrightness: 6.0,
-  baseColor: [0.7, 0.75, 0.85], // Slate blue-grey
-  markerColor: [251 / 255, 100 / 255, 21 / 255],
-  glowColor: [1, 1, 1],
-  markers: [
-    { location: [14.5995, 120.9842], size: 0.03 },
-    { location: [19.076, 72.8777], size: 0.1 },
-    { location: [23.8103, 90.4125], size: 0.05 },
-    { location: [30.0444, 31.2357], size: 0.07 },
-    { location: [39.9042, 116.4074], size: 0.08 },
-    { location: [-23.5505, -46.6333], size: 0.1 },
-    { location: [19.4326, -99.1332], size: 0.1 },
-    { location: [40.7128, -74.006], size: 0.1 },
-    { location: [34.6937, 135.5022], size: 0.05 },
-    { location: [41.0082, 28.9784], size: 0.06 },
-  ],
-}
-
-export function Globe({
-  className,
-  config = GLOBE_CONFIG,
-}: {
-  className?: string
-  config?: COBEOptions
-}) {
-  const phiRef = useRef(0)
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const pointerInteracting = useRef<number | null>(null)
-  const pointerInteractionMovement = useRef(0)
-  const [r, setR] = useState(0)
-  const [width, setWidth] = useState(0)
-
-  const updatePointerInteraction = (value: any) => {
-    pointerInteracting.current = value
-    if (canvasRef.current) {
-      canvasRef.current.style.cursor = value ? "grabbing" : "grab"
-    }
-  }
-
-  const updateMovement = (clientX: any) => {
-    if (pointerInteracting.current !== null) {
-      const delta = clientX - pointerInteracting.current
-      pointerInteractionMovement.current = delta
-      setR(delta / 200)
-    }
-  }
-
-  const onRender = useCallback(
-    (state: Record<string, any>) => {
-      if (!pointerInteracting.current) {
-        phiRef.current += 0.005
-      }
-      state.phi = phiRef.current + r
-      state.width = width * 2
-      state.height = width * 2
-    },
-    [r, width],
-  )
-
-  const onResize = useCallback(() => {
-    if (canvasRef.current) {
-      setWidth(canvasRef.current.offsetWidth)
-    }
-  }, [])
-
-  useEffect(() => {
-    window.addEventListener("resize", onResize)
-    onResize()
-    return () => {
-      window.removeEventListener("resize", onResize)
-    }
-  }, [onResize])
-
-  useEffect(() => {
-    if (!canvasRef.current || width === 0) return;
-
-    const globe = createGlobe(canvasRef.current, {
-      ...config,
-      width: width * 2,
-      height: width * 2,
-      onRender,
-    })
-
-    const canvas = canvasRef.current;
-    setTimeout(() => {
-      if (canvas) {
-        canvas.style.opacity = "1";
-      }
-    })
-
-    return () => {
-      globe.destroy()
-    }
-  }, [config, onRender, width])
-
-  return (
-    <div
-      className={cn(
-        "absolute inset-0 mx-auto aspect-[1/1] w-full max-w-[600px]",
-        className,
-      )}
-    >
-      <canvas
-        className={cn(
-          "size-full opacity-0 transition-opacity duration-500 [contain:layout_paint_size]",
-        )}
-        ref={canvasRef}
-        onPointerDown={(e) =>
-          updatePointerInteraction(
-            e.clientX - pointerInteractionMovement.current,
-          )
-        }
-        onPointerUp={() => updatePointerInteraction(null)}
-        onPointerOut={() => updatePointerInteraction(null)}
-        onMouseMove={(e) => updateMovement(e.clientX)}
-        onTouchMove={(e) =>
-          e.touches[0] && updateMovement(e.touches[0].clientX)
-        }
-      />
-    </div>
-  )
 }

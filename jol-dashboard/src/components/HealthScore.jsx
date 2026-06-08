@@ -29,7 +29,7 @@ export default function HealthScore({ score, size = 64, accentColor }) {
   const value = typeof score === "number" ? score : computeScore(supplierStats);
   const pct   = Math.max(0, Math.min(100, value));
 
-  const strokeWidth  = 5.5;
+  const strokeWidth  = Math.min(5.5, Math.max(2, size * 0.09));
   const radius       = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const dash         = (pct / 100) * circumference;
@@ -77,10 +77,10 @@ export default function HealthScore({ score, size = 64, accentColor }) {
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="alive-number font-bold leading-none" style={{ fontSize: 13, color }}>
+        <span className="alive-number font-bold leading-none" style={{ fontSize: Math.round(size * 0.22), color }}>
           {value}
         </span>
-        <span className="mt-0.5 leading-none" style={{ fontSize: 9, color: "var(--text-muted)" }}>
+        <span className="mt-0.5 leading-none" style={{ fontSize: Math.round(size * 0.145), color: "var(--text-muted)" }}>
           HEALTH
         </span>
       </div>

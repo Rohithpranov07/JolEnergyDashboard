@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import {
@@ -209,7 +209,7 @@ function PipelineNode({ stage, count, color, total, onFilter, isFiltered, delay 
       onClick={() => onFilter(stage)}
       onMouseMove={handleMagneticMove}
       onMouseLeave={handleMagneticLeave}
-      className="pressable flex-1 rounded-2xl p-4 text-left"
+      className="pressable flex-1 w-full rounded-2xl p-4 text-left focus-visible:outline-none"
       style={{
         background: isFiltered ? `${color}14` : CARD_BG,
         border: `1px solid ${isFiltered ? color + "55" : "rgba(17,24,39,0.07)"}`,
@@ -219,12 +219,12 @@ function PipelineNode({ stage, count, color, total, onFilter, isFiltered, delay 
         willChange: "transform",
       }}
     >
-      <div style={{ ...LABEL_STYLE, color: isFiltered ? color : undefined, marginBottom: 6 }}>
+      <div style={{ ...LABEL_STYLE, marginBottom: 6 }}>
         {stage}
       </div>
       <div className="alive-number tnum" style={{
         fontSize: "clamp(1.6rem, 3vw, 2.3rem)", fontWeight: 800, letterSpacing: "-0.03em",
-        lineHeight: 1, color: isFiltered ? color : "var(--text-primary)",
+        lineHeight: 1, color: "var(--text-primary)",
       }}>
         {count}
       </div>
@@ -239,15 +239,15 @@ function PipelineNode({ stage, count, color, total, onFilter, isFiltered, delay 
 function ConvArrow({ from, to }) {
   const pct = from > 0 ? Math.round((to / from) * 100) : 0;
   const good = pct >= 40;
+  const stroke = good ? "#10B98A" : "#CBD5E1";
   return (
-    <div className="flex shrink-0 flex-col items-center justify-center gap-1" style={{ width: 40, minWidth: 40 }}>
-      <span className="tnum" style={{ fontSize: 10, fontWeight: 700, color: good ? "#047857" : "var(--text-muted)" }}>{pct}%</span>
-      <svg width="26" height="12" viewBox="0 0 26 12" fill="none" aria-hidden>
-        <path d="M0 6h20" stroke={good ? "#10B98A" : "#D1D5DB"} strokeWidth="1.5" strokeLinecap="round" />
-        <path d="M16 2l5 4-5 4" stroke={good ? "#10B98A" : "#D1D5DB"} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-        {/* Traveling pulse dot */}
-        <circle r="2" fill={good ? "#10B98A" : "#D1D5DB"}>
-          <animateMotion dur="2s" repeatCount="indefinite" path="M0,6 L20,6" />
+    <div className="flex shrink-0 self-stretch flex-col items-center justify-center gap-1.5" style={{ width: 52, minWidth: 52 }}>
+      <span className="tnum" style={{ fontSize: 11, fontWeight: 700, color: good ? "#047857" : "var(--text-muted)" }}>{pct}%</span>
+      <svg width="36" height="18" viewBox="0 0 36 18" fill="none" aria-hidden>
+        <path d="M0 9h26" stroke={stroke} strokeWidth="2" strokeLinecap="round" />
+        <path d="M21 4l7 5-7 5" stroke={stroke} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        <circle r="2.5" fill={stroke}>
+          <animateMotion dur="2s" repeatCount="indefinite" path="M0,9 L26,9" />
           <animate attributeName="opacity" values="0;1;1;0" dur="2s" repeatCount="indefinite" />
         </circle>
       </svg>
@@ -323,6 +323,7 @@ const SP_COLUMNS = [
 
 export default function SupplierPipeline() {
   const rootRef = useRef(null);
+  const tableRef = useRef(null);
   const [filters, setFilters] = useState(EMPTY_FILTERS);
   const [alertDismissed, setAlertDismissed] = useState(false);
 
@@ -380,6 +381,10 @@ export default function SupplierPipeline() {
       if (filters.source && l.source !== filters.source) return false;
       return true;
     }), [filters]);
+
+  const scrollToTable = () => {
+    tableRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   const toggleFilter = (key, val) => setFilters(f => ({ ...f, [key]: f[key] === val ? "" : val }));
   const setFilter = (key, val) => setFilters(f => ({ ...f, [key]: val }));
@@ -445,13 +450,13 @@ export default function SupplierPipeline() {
           <StatCard value={supplierStats.total} label="Total leads" color={ACCENT}
             source="TNPCB/KSPCB/CPCB/IndiaMART registries, Jun 2026" animateOnMount icon={<LeadsIco />}
             subtext={activeChips.length > 0 ? "Click to clear filters" : `${verifiedPct}% phone verified`}
-            onClick={clearAll} active={activeChips.length === 0} />
+            onClick={() => { clearAll(); scrollToTable(); }} active={activeChips.length === 0} />
         </div>
         <div className="sp-card">
           <StatCard value={`${(supplierStats.totalKg / 1000).toFixed(0)}k kg`} label="Monthly volume est." color="#10B98A"
             source="Volume tier midpoint formula (PRD §4.6)" animateOnMount icon={<VolumeIco />}
             subtext="∑ tier midpoints (Click for 3T+)"
-            onClick={() => toggleFilter("volTier", "3 Ton+/mo")}
+            onClick={() => { toggleFilter("volTier", "3 Ton+/mo"); scrollToTable(); }}
             active={filters.volTier === "3 Ton+/mo"} />
         </div>
         <div className="sp-card">
@@ -463,14 +468,14 @@ export default function SupplierPipeline() {
           <StatCard value={supplierStats.highInterest} label="High-interest leads" color="#F59E0B"
             source="Interest score from contact frequency + response" animateOnMount icon={<StarIco />}
             subtext={`${highIntPct}% of pipeline (Click)`}
-            onClick={() => toggleFilter("interest", "High")}
+            onClick={() => { toggleFilter("interest", "High"); scrollToTable(); }}
             active={filters.interest === "High"} />
         </div>
         <div className="sp-card">
           <StatCard value={supplierStats.tonPlusTier} label="1-Ton+ tier leads" color="#F0656A"
             source="Volume tier from registry capacity data" animateOnMount icon={<BarIco />}
             subtext={`${tonPlusPct}% are high-vol (Click)`}
-            onClick={() => toggleFilter("volTier", "1 Ton+/mo")}
+            onClick={() => { toggleFilter("volTier", "1 Ton+/mo"); scrollToTable(); }}
             active={filters.volTier === "1 Ton+/mo"} />
         </div>
       </div>
@@ -492,16 +497,17 @@ export default function SupplierPipeline() {
           </div>
         </div>
 
-        <div className="flex items-start gap-0 overflow-x-auto pb-2">
+        <div className="flex items-stretch gap-0 overflow-x-auto pb-2">
           {pipelineStages.map((s, i) => (
-            <div key={s.stage} className="flex min-w-0 items-center" style={{ flex: 1 }}>
-              <div style={{ flex: 1, minWidth: 80 }}>
+            <Fragment key={s.stage}>
+              {/* Node wrapper: display flex so PipelineNode button fills height via flex-1 */}
+              <div style={{ flex: 1, minWidth: 80, display: "flex" }}>
                 <PipelineNode
                   stage={s.stage}
                   count={s.count}
                   color={s.color}
                   total={supplierStats.total}
-                  onFilter={stage => toggleFilter("stage", stage)}
+                  onFilter={stage => { toggleFilter("stage", stage); scrollToTable(); }}
                   isFiltered={filters.stage === s.stage}
                   delay={i * 80}
                 />
@@ -509,7 +515,7 @@ export default function SupplierPipeline() {
               {i < pipelineStages.length - 1 && (
                 <ConvArrow from={s.count} to={pipelineStages[i + 1].count} />
               )}
-            </div>
+            </Fragment>
           ))}
         </div>
       </div>
@@ -761,7 +767,7 @@ export default function SupplierPipeline() {
       </div>
 
       {/* ═══ 6 · LEAD TABLE ════════════════════════════════════════════════ */}
-      <div className="sp-card" style={{ padding: 0 }}>
+      <div ref={tableRef} className="sp-card" style={{ padding: 0 }}>
         <LeadTable
           data={filteredLeads}
           columns={SP_COLUMNS}
