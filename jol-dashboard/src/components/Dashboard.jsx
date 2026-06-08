@@ -284,7 +284,7 @@ export default function Dashboard() {
           </div>
 
           {/* Divider */}
-          <div className="h-6 w-px shrink-0 bg-[var(--border-default)]" />
+          <div className="hidden h-6 w-px shrink-0 bg-[var(--border-default)] sm:block" />
 
           {/* Segmented tab nav */}
           <nav
@@ -335,7 +335,7 @@ export default function Dashboard() {
           </nav>
 
           {/* Divider */}
-          <div className="h-6 w-px shrink-0 bg-[var(--border-default)]" />
+          <div className="hidden h-6 w-px shrink-0 bg-[var(--border-default)] sm:block" />
 
           {/* Health ring + alert bell */}
           <div className="flex shrink-0 items-center gap-1.5">

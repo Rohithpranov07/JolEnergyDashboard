@@ -372,19 +372,19 @@ export function CinematicHero({
       <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none" style={{ perspective: "1500px" }}>
         <div
           ref={mainCardRef}
-          className="main-card premium-depth-card relative overflow-hidden gsap-reveal flex items-center justify-center pointer-events-auto w-[92vw] md:w-[85vw] h-[92vh] md:h-[85vh] rounded-[32px] md:rounded-[40px]"
+          className="main-card premium-depth-card relative overflow-hidden gsap-reveal flex items-center justify-center pointer-events-auto w-[94vw] md:w-[85vw] h-[94vh] md:h-[85vh] rounded-[32px] md:rounded-[40px]"
         >
           <div className="card-sheen" aria-hidden="true" />
 
-          <div className="relative w-full h-full max-w-7xl mx-auto px-4 lg:px-12 flex flex-col justify-evenly lg:grid lg:grid-cols-3 items-center lg:gap-x-8 z-10 py-6 lg:py-4">
+          <div className="relative w-full h-full max-w-7xl mx-auto px-4 lg:px-12 flex flex-col justify-between lg:grid lg:grid-cols-3 items-center lg:gap-x-8 z-10 py-5 lg:py-4">
 
             {/* Brand name — top on mobile, right on desktop */}
             <div className="card-right-text gsap-reveal order-1 lg:order-3 flex flex-col items-center lg:items-end justify-center z-20 w-full">
               <div className="text-right">
-                <h2 className="text-5xl md:text-[5rem] lg:text-[7rem] font-black uppercase tracking-tighter text-card-silver-matte leading-none">
+                <h2 className="text-[2.75rem] md:text-[5rem] lg:text-[7rem] font-black uppercase tracking-tighter text-card-silver-matte leading-none">
                   Jol
                 </h2>
-                <h2 className="text-5xl md:text-[5rem] lg:text-[7rem] font-black uppercase tracking-tighter leading-none"
+                <h2 className="text-[2.75rem] md:text-[5rem] lg:text-[7rem] font-black uppercase tracking-tighter leading-none"
                   style={{ WebkitTextStroke: "1px rgba(255,255,255,0.3)", color: "transparent" }}>
                   Energy
                 </h2>
@@ -415,8 +415,8 @@ export function CinematicHero({
             </div>
 
             {/* Center — dashboard mockup */}
-            <div className="mockup-scroll-wrapper order-2 lg:order-2 relative w-full h-[380px] lg:h-[600px] flex items-center justify-center z-10" style={{ perspective: "1000px" }}>
-              <div className="relative w-full h-full flex items-center justify-center transform scale-[0.65] md:scale-85 lg:scale-100">
+            <div className="mockup-scroll-wrapper order-2 lg:order-2 relative w-full h-[260px] md:h-[380px] lg:h-[600px] flex items-center justify-center z-10" style={{ perspective: "1000px" }}>
+              <div className="relative w-full h-full flex items-center justify-center transform scale-[0.48] md:scale-85 lg:scale-100">
                 <div
                   ref={mockupRef}
                   className="relative w-[280px] h-[580px] rounded-[3rem] iphone-bezel flex flex-col will-change-transform"
@@ -528,11 +528,11 @@ export function CinematicHero({
             </div>
 
             {/* Left text — bottom on mobile, left on desktop */}
-            <div className="card-left-text gsap-reveal order-3 lg:order-1 flex flex-col justify-center text-center lg:text-left z-20 w-full px-4 lg:px-0">
-              <h3 className="text-white text-xl md:text-3xl lg:text-3xl font-bold mb-2 md:mb-3 tracking-tight leading-tight">
+            <div className="card-left-text gsap-reveal order-3 lg:order-1 flex flex-col justify-center text-center lg:text-left z-20 w-full px-2 lg:px-0 mt-[-15px] md:mt-0">
+              <h3 className="text-white text-[1.15rem] md:text-3xl lg:text-3xl font-bold mb-1.5 md:mb-3 tracking-tight leading-tight">
                 Intelligence for the circular economy.
               </h3>
-              <p className="text-blue-100/60 text-xs md:text-sm font-normal leading-relaxed max-w-[280px] md:max-w-sm lg:max-w-none mx-auto lg:mx-0 mb-4 md:mb-5">
+              <p className="text-blue-100/60 text-[11px] md:text-sm font-normal leading-relaxed max-w-[280px] md:max-w-sm lg:max-w-none mx-auto lg:mx-0 mb-3 md:mb-5">
                 <span className="text-white font-semibold">Jol Energy</span> brings together supplier inflows, buyer pipelines, geo-mapped collection networks, and live metal-market prices — all in one living dashboard driven by Claude AI.
               </p>
               <Link
@@ -549,8 +549,8 @@ export function CinematicHero({
                 </svg>
               </Link>
 
-              <div className="flex mt-3 md:mt-5 items-center gap-1.5 md:gap-2 text-[9px] md:text-[11px] font-medium text-blue-200/70 bg-[#185FA5]/10 w-max px-2.5 py-1 md:px-3 md:py-1.5 rounded-full border border-blue-400/20 backdrop-blur-sm self-center lg:self-start tracking-wide">
-                <svg className="w-3 md:w-3.5 h-3 md:h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <div className="flex mt-2 md:mt-5 items-center gap-1.5 md:gap-2 text-[8px] md:text-[11px] font-medium text-blue-200/70 bg-[#185FA5]/10 w-max px-2.5 py-1 md:px-3 md:py-1.5 rounded-full border border-blue-400/20 backdrop-blur-sm self-center lg:self-start tracking-wide">
+                <svg className="w-2.5 md:w-3.5 h-2.5 md:h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 Auth & other features in development

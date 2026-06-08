@@ -76,7 +76,7 @@ export function FloatingChatWidget() {
   const currentAgent = AI_AGENTS[0];
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-4">
+    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex flex-col items-end gap-4">
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -85,7 +85,7 @@ export function FloatingChatWidget() {
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="w-[380px] overflow-hidden rounded-2xl border border-border/40 bg-background shadow-2xl ring-1 ring-black/5"
+            className="w-[calc(100vw-2rem)] max-w-95 overflow-hidden rounded-2xl border border-border/40 bg-background shadow-2xl ring-1 ring-black/5"
           >
             {/* Header */}
             <div className="relative border-b border-border/40 bg-muted/30 p-4 overflow-hidden">

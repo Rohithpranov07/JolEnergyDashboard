@@ -13,6 +13,12 @@ export const metadata = {
     "Live BI dashboard for Jol Energy: supplier & buyer pipelines, collection network, battery-metal market intelligence, and AI insights.",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${geistSans.variable} min-h-screen antialiased`}>

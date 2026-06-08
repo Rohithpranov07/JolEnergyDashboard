@@ -68,7 +68,7 @@ export default function AlertsPanel({ isOpen, onClose, alerts }) {
         aria-label="Smart alerts panel"
         style={{
           position: "fixed", top: 0, right: 0, bottom: 0,
-          width: 340,
+          width: "min(340px, calc(100vw - 1.5rem))",
           background: "rgba(255,255,255,0.82)",
           border: "1px solid rgba(255,255,255,0.7)",
           borderRight: "none",
