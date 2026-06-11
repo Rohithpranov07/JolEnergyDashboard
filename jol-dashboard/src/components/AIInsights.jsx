@@ -1,62 +1,24 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import {
+  AlertTriangle,
+  Check,
+  Cpu,
+  Info,
+  Lightbulb,
+  MapPin,
+  Sparkles,
+} from "lucide-react";
 import { PromptInputBox } from "./ui/ai-prompt-box.jsx";
 import { HandWrittenTitle } from "./ui/hand-writing-text.jsx";
 import { supplierLeads, supplierStats } from "../data/supplierLeads.js";
-import { buyerLeads, buyerStats } from "../data/buyerLeads.js";
+import { buyerStats } from "../data/buyerLeads.js";
 import { collectionStats } from "../data/collectionPoints.js";
 import { marketStats } from "../data/marketPrices.js";
+import { PIPELINE_CONTEXT } from "../lib/pipelineContext.js";
 
-// ─── Context builder (< 800 tokens) ──────────────────────────────────────────
-
-function buildPipelineContext() {
-  const staleLeads = supplierLeads.filter(
-    (l) => l.lastContactDaysAgo >= 14 && l.stage === "Lead",
-  ).length;
-
-  return JSON.stringify({
-    supplierStats: {
-      total: supplierStats.total,
-      byState: supplierStats.byState,
-      funnelStages: supplierStats.funnelStages.map((s) => ({
-        stage: s.stage,
-        count: s.count,
-      })),
-      totalKg: supplierStats.totalKg,
-      tonPlusTier: supplierStats.tonPlusTier,
-      staleLeads,
-      highInterest: supplierStats.highInterest,
-      citiesCount: supplierStats.citiesCount,
-      cityVolumeChart: supplierStats.cityVolumeChart
-        .slice(0, 5)
-        .map((c) => ({ city: c.city, kg: c.kg })),
-    },
-    buyerStats: {
-      total: buyerStats.total,
-      byCategory: buyerStats.byCategory,
-      byProduct: buyerStats.byProduct,
-      totalConsumptionMT: buyerStats.totalConsumptionMT,
-      highLoiCount: buyerStats.highLoiCount,
-    },
-    collectionStats: {
-      total: collectionStats.total,
-      verified: collectionStats.verified,
-      field: collectionStats.field,
-      totalKg: collectionStats.totalKg,
-      byCity: collectionStats.byCity,
-    },
-    market: {
-      cobalt: marketStats.cobalt,
-      nickel: marketStats.nickel,
-      liCarb: marketStats.liCarb,
-      latestDate: marketStats.latestDate,
-    },
-  });
-}
-
-// Stable module-level values (avoids ref-during-render lint error).
-const PIPELINE_CONTEXT = buildPipelineContext();
+// ─── Derived data ─────────────────────────────────────────────────────────────
 
 const STALE_LEADS = supplierLeads.filter(
   (l) => l.lastContactDaysAgo >= 14 && l.stage === "Lead",
@@ -161,40 +123,51 @@ async function callAI({ system, userContent, maxTokens }) {
 
 function Skeleton() {
   return (
-    <div className="space-y-2.5" aria-busy="true">
-      {[70, 90, 55].map((w, i) => (
+    <div className="space-y-2.5" aria-busy="true" aria-label="Loading">
+      {[94, 100, 62].map((w, i) => (
         <div
           key={i}
-          className="h-4 rounded bg-[#E0E0E0]"
+          className="h-3.5 rounded-full"
           style={{
             width: `${w}%`,
-            animation: `skPulse 1.4s ease-in-out ${i * 0.2}s infinite`,
+            background:
+              "linear-gradient(90deg, rgba(17,24,39,0.05) 25%, rgba(17,24,39,0.11) 37%, rgba(17,24,39,0.05) 63%)",
+            backgroundSize: "400% 100%",
+            animation: `skShimmer 1.4s ease-in-out ${i * 0.12}s infinite`,
           }}
         />
       ))}
-      <style>{`@keyframes skPulse{0%,100%{opacity:.5}50%{opacity:1}}`}</style>
+      <style>{`@keyframes skShimmer{0%{background-position:100% 0}100%{background-position:0 0}}`}</style>
     </div>
   );
 }
 
-/* ── Reusable section header (eyebrow + title + badge) ──────────────────── */
-function SectionHead({ eyebrow, title, accent, badge }) {
+/* ── Reusable section header (icon + eyebrow + title + badge) ───────────── */
+function SectionHead({ eyebrow, title, accent, badge, icon }) {
   return (
     <div className="mb-4 flex items-center justify-between gap-3">
-      <div className="flex items-center gap-2.5">
-        <span
-          className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
-          style={{ background: accent, boxShadow: `0 0 0 4px ${accent}1F` }}
-        />
+      <div className="flex items-center gap-3">
+        {icon ? (
+          <span
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
+            style={{
+              background: `${accent}14`,
+              color: accent,
+              boxShadow: `inset 0 0 0 1px ${accent}29`,
+            }}
+          >
+            {icon}
+          </span>
+        ) : (
+          <span
+            className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
+            style={{ background: accent, boxShadow: `0 0 0 4px ${accent}1F` }}
+          />
+        )}
         <div>
           <div
-            style={{
-              fontSize: 10,
-              fontWeight: 700,
-              letterSpacing: "0.12em",
-              textTransform: "uppercase",
-              color: accent,
-            }}
+            className="text-[10px] font-bold uppercase tracking-[0.12em]"
+            style={{ color: accent }}
           >
             {eyebrow}
           </div>
@@ -211,35 +184,55 @@ function SectionHead({ eyebrow, title, accent, badge }) {
 function Badge({ children, accent, muted }) {
   return (
     <span
-      className="shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-semibold"
+      className="inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-semibold"
       style={
         muted
-          ? { background: "var(--bg-nav)", color: "var(--text-muted)" }
-          : { background: `${accent}1A`, color: accent }
+          ? {
+              background: "var(--bg-nav)",
+              color: "var(--text-muted)",
+              boxShadow: "inset 0 0 0 1px var(--border-default)",
+            }
+          : {
+              background: `${accent}14`,
+              color: accent,
+              boxShadow: `inset 0 0 0 1px ${accent}33`,
+            }
       }
     >
+      {!muted && (
+        <span
+          className="h-1.5 w-1.5 rounded-full"
+          style={{ background: accent }}
+        />
+      )}
       {children}
     </span>
   );
 }
 
+const ALERT_STYLES = {
+  warn: { accent: "#B45309", Icon: AlertTriangle },
+  info: { accent: "#185FA5", Icon: Info },
+  tip: { accent: "#0A7864", Icon: Lightbulb },
+};
+
 function AlertCard({ alert, onDismiss }) {
-  const styles = {
-    warn: { accent: "#B45309", label: "Warning" },
-    info: { accent: "#185FA5", label: "Info" },
-    tip: { accent: "#0A7864", label: "Tip" },
-  };
-  const s = styles[alert.severity] || styles.info;
+  const s = ALERT_STYLES[alert.severity] || ALERT_STYLES.info;
+  const Icon = s.Icon;
   return (
     <div
-      className="group flex items-start gap-3 rounded-xl border border-[var(--border-subtle)] p-3.5 transition-colors hover:border-[var(--border-default)]"
-      style={{ borderLeft: `3px solid ${s.accent}`, background: `${s.accent}0D` }}
+      className="group flex items-start gap-3 rounded-xl p-3.5 transition-all duration-200 hover:-translate-y-px"
+      style={{
+        borderLeft: `3px solid ${s.accent}`,
+        background: `${s.accent}0D`,
+        boxShadow: "inset 0 0 0 1px var(--border-subtle)",
+      }}
     >
       <span
-        className="mt-0.5 shrink-0 rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider"
+        className="mt-px flex h-6 w-6 shrink-0 items-center justify-center rounded-lg"
         style={{ background: `${s.accent}1F`, color: s.accent }}
       >
-        {s.label}
+        <Icon size={13} strokeWidth={2.4} />
       </span>
       <p className="flex-1 text-[13px] leading-snug text-[var(--text-primary)]">
         {alert.message}
@@ -247,7 +240,8 @@ function AlertCard({ alert, onDismiss }) {
       <button
         type="button"
         onClick={() => onDismiss(alert.id)}
-        className="shrink-0 text-[11px] font-medium text-[var(--text-muted)] underline-offset-2 transition-colors hover:text-[var(--text-secondary)] hover:underline"
+        aria-label="Dismiss alert"
+        className="shrink-0 self-start rounded-md px-1.5 py-0.5 text-[11px] font-medium text-[var(--text-muted)] transition-colors hover:bg-[var(--border-subtle)] hover:text-[var(--text-secondary)]"
       >
         Dismiss
       </button>
@@ -261,11 +255,11 @@ function TypingDots() {
       {[0, 1, 2].map((i) => (
         <span
           key={i}
-          className="inline-block h-2 w-2 rounded-full bg-[#666]"
+          className="inline-block h-2 w-2 rounded-full bg-white/50"
           style={{ animation: `typDot .9s ease-in-out ${i * 0.2}s infinite` }}
         />
       ))}
-      <style>{`@keyframes typDot{0%,80%,100%{transform:scale(.7);opacity:.5}40%{transform:scale(1);opacity:1}}`}</style>
+      <style>{`@keyframes typDot{0%,80%,100%{transform:scale(.7);opacity:.4}40%{transform:scale(1);opacity:1}}`}</style>
     </span>
   );
 }
@@ -429,7 +423,7 @@ export default function AIInsights({ accentColor = "#F0656A" }) {
         {
           role: "assistant",
           content: isNoKey
-            ? "API unavailable – check NEXT_PUBLIC_ANTHROPIC_KEY in .env"
+            ? "API unavailable – check GEMINI_API_KEY in .env"
             : `Sorry, I couldn't fetch a response. (${msg})`,
         },
       ]);
@@ -441,52 +435,78 @@ export default function AIInsights({ accentColor = "#F0656A" }) {
 
 
   const fallbackCity = computeFallbackCity();
+  // Gemini returns "CITY: <name> – <reason>"; pull out the parts to spotlight
+  // the city name and reason separately.
+  const cityMatch = cityText.match(/CITY:\s*(.+?)\s*[–-]\s*([\s\S]+)/i);
 
   return (
     <div className="section-stagger space-y-4">
       {/* ═══ 0 · EDITORIAL HEADER ══════════════════════════════════════════ */}
-      <div className="glass-card flex w-full flex-col items-center justify-center gap-4 p-5">
+      <div className="glass-card relative flex w-full flex-col items-center justify-center gap-3 overflow-hidden p-5">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-28 left-1/2 h-56 w-[65%] -translate-x-1/2 rounded-full"
+          style={{ background: `radial-gradient(circle, ${accentColor}24, transparent 70%)` }}
+        />
         <div className="relative w-full">
           <HandWrittenTitle
             title="AI Insights"
-            subtitle="Explore logistics optimization, pricing analysis, and business intelligence with Claude"
+            subtitle="Logistics optimisation, pricing analysis, and business intelligence — grounded in your live pipeline data"
           />
         </div>
+        <span
+          className="relative inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold"
+          style={{
+            background: `${accentColor}12`,
+            color: accentColor,
+            boxShadow: `inset 0 0 0 1px ${accentColor}2E`,
+          }}
+        >
+          <Sparkles size={12} strokeWidth={2.4} />
+          Powered by Gemini · gemini-2.5-flash
+        </span>
       </div>
 
       {/* Work-in-progress banner */}
       <div
-        className="flex items-center gap-3 rounded-xl border px-4 py-3"
-        style={{ borderColor: `${accentColor}55`, background: `${accentColor}12` }}
+        className="flex items-center gap-3 rounded-xl px-4 py-2.5"
+        style={{
+          background: `${accentColor}0D`,
+          boxShadow: `inset 0 0 0 1px ${accentColor}33`,
+        }}
         role="status"
       >
         <span
-          className="shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white"
+          className="flex h-5 shrink-0 items-center rounded-full px-2 text-[9px] font-bold uppercase tracking-wider text-white"
           style={{ background: accentColor }}
         >
-          Work in progress
+          Beta
         </span>
-        <p className="text-[13px] text-[var(--text-primary)]">
-          This module is still under active development — features and outputs may change.
+        <p className="text-[12.5px] text-[var(--text-secondary)]">
+          This module is under active development — features and outputs may
+          change.
         </p>
       </div>
 
       {/* API key banner */}
       {noApiKey && (
         <div
-          className="flex items-center justify-between gap-3 rounded-xl border px-4 py-3"
-          style={{ borderColor: `${accentColor}55`, background: `${accentColor}12` }}
+          className="flex items-center justify-between gap-3 rounded-xl px-4 py-3"
+          style={{
+            background: `${accentColor}10`,
+            boxShadow: `inset 0 0 0 1px ${accentColor}40`,
+          }}
           role="alert"
         >
           <p className="text-sm text-[var(--text-primary)]">
-            Add your Anthropic API key to{" "}
+            Add your Gemini API key to{" "}
             <code className="rounded bg-[var(--bg-nav)] px-1 font-mono text-[12px]">
               .env
             </code>{" "}
             to enable AI insights.
           </p>
           <a
-            href="https://console.anthropic.com"
+            href="https://aistudio.google.com/apikey"
             target="_blank"
             rel="noopener noreferrer"
             className="pressable shrink-0 rounded-lg px-3 py-1.5 text-[12px] font-semibold text-white transition-transform hover:scale-105"
@@ -503,45 +523,49 @@ export default function AIInsights({ accentColor = "#F0656A" }) {
           eyebrow="Pipeline health"
           title="Business narrative"
           accent={accentColor}
+          icon={<Sparkles size={16} strokeWidth={2.2} />}
           badge={<Badge accent={accentColor}>AI-generated</Badge>}
         />
 
         {narrativeLoading ? (
-          <Skeleton />
-        ) : narrativeError ? (
-          <div
-            className="rounded-xl p-4"
-            style={{ borderLeft: `3px solid ${accentColor}`, background: `${accentColor}0D` }}
-          >
-            <p className="text-sm leading-relaxed text-[var(--text-primary)]">
-              {narrativeFallback()}
-            </p>
+          <div className="rounded-2xl p-4" style={{ background: `${accentColor}08` }}>
+            <Skeleton />
           </div>
         ) : (
           <div
-            className="rounded-xl p-4"
-            style={{ borderLeft: `3px solid ${accentColor}`, background: `${accentColor}0D` }}
+            className="relative overflow-hidden rounded-2xl py-4 pl-5 pr-4"
+            style={{
+              background: `linear-gradient(135deg, ${accentColor}12, ${accentColor}05)`,
+              boxShadow: `inset 0 0 0 1px ${accentColor}24`,
+            }}
           >
-            <p className="text-sm leading-relaxed text-[var(--text-primary)]">
-              {narrativeText}
+            <span
+              aria-hidden
+              className="absolute left-0 top-0 h-full w-1"
+              style={{
+                background: `linear-gradient(${accentColor}, ${accentColor}66)`,
+              }}
+            />
+            <p className="text-[14px] leading-relaxed text-[var(--text-primary)]">
+              {narrativeError ? narrativeFallback() : narrativeText}
             </p>
           </div>
         )}
 
-        <p className="mt-2.5 text-[11px] text-[var(--text-muted)]">
-          claude-sonnet-4-20250514 · max 350 tokens · based on live dashboard
-          data
+        <p className="mt-3 flex items-center gap-1.5 text-[11px] text-[var(--text-muted)]">
+          <Cpu size={12} /> gemini-2.5-flash · max 350 tokens · live dashboard data
         </p>
       </div>
 
       {/* ── SECTIONS 2 + 3 – CITY RECOMMENDATION | SMART ALERTS ──────────── */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {/* City recommendation */}
-        <div className="glass-card p-5">
+        <div className="glass-card flex flex-col p-5">
           <SectionHead
             eyebrow="Next move"
             title="Recommended target city"
             accent={accentColor}
+            icon={<MapPin size={16} strokeWidth={2.2} />}
             badge={
               !cityError && !cityLoading && cityText ? (
                 <Badge accent={accentColor}>AI-generated</Badge>
@@ -552,28 +576,54 @@ export default function AIInsights({ accentColor = "#F0656A" }) {
           />
 
           {cityLoading ? (
-            <Skeleton />
-          ) : cityError ? (
-            <div className="rounded-xl p-4" style={{ borderLeft: "3px solid #B45309", background: "rgba(180,83,9,0.07)" }}>
-              <p className="text-sm font-semibold text-[#B45309]">
-                Recommended:{" "}
-                <span className="text-[var(--text-primary)]">{fallbackCity.city}</span>
-              </p>
-              <p className="mt-1 text-[13px] text-[var(--text-secondary)]">
-                {fallbackCity.count} high-value leads with low contact rate.
-              </p>
+            <div className="flex-1 rounded-2xl p-4" style={{ background: "rgba(180,83,9,0.05)" }}>
+              <Skeleton />
             </div>
           ) : (
             <div
-              className="rounded-xl p-4"
-              style={{ borderLeft: "3px solid #B45309", background: "rgba(180,83,9,0.07)" }}
+              className="flex flex-1 items-start gap-3 rounded-2xl p-4"
+              style={{
+                background:
+                  "linear-gradient(135deg, rgba(180,83,9,0.11), rgba(180,83,9,0.03))",
+                boxShadow: "inset 0 0 0 1px rgba(180,83,9,0.18)",
+              }}
             >
-              <p className="text-sm leading-relaxed text-[var(--text-primary)]">{cityText}</p>
+              <span
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
+                style={{ background: "rgba(180,83,9,0.14)", color: "#B45309" }}
+              >
+                <MapPin size={17} strokeWidth={2.2} />
+              </span>
+              <div className="min-w-0">
+                {cityError ? (
+                  <>
+                    <p className="text-[16px] font-bold tracking-[-0.01em] text-[var(--text-primary)]">
+                      {fallbackCity.city}
+                    </p>
+                    <p className="mt-0.5 text-[13px] leading-relaxed text-[var(--text-secondary)]">
+                      {fallbackCity.count} high-value leads with low contact rate.
+                    </p>
+                  </>
+                ) : cityMatch ? (
+                  <>
+                    <p className="text-[16px] font-bold tracking-[-0.01em] text-[var(--text-primary)]">
+                      {cityMatch[1]}
+                    </p>
+                    <p className="mt-0.5 text-[13px] leading-relaxed text-[var(--text-secondary)]">
+                      {cityMatch[2]}
+                    </p>
+                  </>
+                ) : (
+                  <p className="text-[13px] leading-relaxed text-[var(--text-primary)]">
+                    {cityText}
+                  </p>
+                )}
+              </div>
             </div>
           )}
 
-          <p className="mt-2.5 text-[11px] text-[var(--text-muted)]">
-            claude-sonnet-4-20250514 · max 200 tokens · outreach priority
+          <p className="mt-3 flex items-center gap-1.5 text-[11px] text-[var(--text-muted)]">
+            <Cpu size={12} /> gemini-2.5-flash · max 200 tokens · outreach priority
           </p>
         </div>
 
@@ -583,13 +633,20 @@ export default function AIInsights({ accentColor = "#F0656A" }) {
             eyebrow="Monitoring"
             title={`Smart alerts (${activeAlerts.length})`}
             accent={accentColor}
+            icon={<AlertTriangle size={16} strokeWidth={2.2} />}
             badge={<Badge muted>rule-based</Badge>}
           />
 
           {activeAlerts.length === 0 ? (
-            <div className="flex h-24 items-center justify-center rounded-xl border border-dashed border-[var(--border-default)]">
-              <p className="text-sm text-[var(--text-muted)]">
-                No active alerts – all checks passed.
+            <div className="flex h-28 flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-[var(--border-default)]">
+              <span
+                className="flex h-8 w-8 items-center justify-center rounded-full"
+                style={{ background: "rgba(10,120,100,0.12)", color: "#0A7864" }}
+              >
+                <Check size={16} strokeWidth={2.6} />
+              </span>
+              <p className="text-[13px] font-medium text-[var(--text-secondary)]">
+                All clear — no active alerts.
               </p>
             </div>
           ) : (
@@ -603,97 +660,136 @@ export default function AIInsights({ accentColor = "#F0656A" }) {
       </div>
 
       {/* ── SECTION 4 – ASK YOUR DATA ────────────────────────────────────── */}
-      <div className="glass-card p-5">
-        <div className="mb-1 flex items-center gap-2.5">
-          <span className="inline-block h-2.5 w-2.5 rounded-full bg-[#8B5CF6] animate-pulse" />
-          <div>
-            <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#8B5CF6]">
-              AI Neural Engine
-            </div>
-            <h2 className="mt-0.5 text-[15px] font-bold tracking-[-0.01em] text-[var(--text-primary)]">
-              Ask your pipeline data
-            </h2>
-          </div>
-        </div>
-        <p className="mb-3 ml-5 text-[12px] text-[var(--text-secondary)]">
-          Ask anything about your suppliers, buyers, or market prices
-        </p>
-
-        {/* Suggestion chips */}
-        {chatMessages.length === 0 && (
-          <div className="mb-3 flex flex-wrap gap-2">
-            {SUGGESTIONS.map((s) => (
-              <button
-                key={s}
-                type="button"
-                onClick={() => sendChat(s)}
-                className="pressable rounded-full border px-3 py-1.5 text-[11px] font-medium transition-all"
-                style={{
-                  background: "var(--bg-nav)",
-                  borderColor: "var(--border-default)",
-                  color: "var(--text-secondary)",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = `${accentColor}12`;
-                  e.currentTarget.style.borderColor = `${accentColor}66`;
-                  e.currentTarget.style.color = accentColor;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "var(--bg-nav)";
-                  e.currentTarget.style.borderColor = "var(--border-default)";
-                  e.currentTarget.style.color = "var(--text-secondary)";
-                }}
-              >
-                {s}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Chat history */}
-        <div className="mb-3 max-h-80 min-h-15 space-y-3 overflow-y-auto rounded-2xl bg-[#16171A]/95 border border-[#333333]/45 p-4 shadow-inner">
-          {chatMessages.length === 0 ? (
-            <p className="text-[13px] text-[#888780] italic text-center py-4">
-              No messages yet. Ask a question below or choose a suggestion.
-            </p>
-          ) : (
-            chatMessages.map((m, i) => (
-              <div
-                key={i}
-                className={`chat-msg flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
-              >
-                <div
-                  className={`max-w-[80%] px-4 py-2.5 text-[13px] leading-relaxed border shadow-md ${
-                    m.role === "user"
-                      ? "border-[#444444]/80 text-white bg-gradient-to-tr from-[#1E2025] to-[#2B2D35] rounded-2xl rounded-tr-none"
-                      : "border-[#333333]/50 text-gray-100 bg-[#1F2023]/65 rounded-2xl rounded-tl-none"
-                  }`}
-                >
-                  {m.content ||
-                    (streaming && i === chatMessages.length - 1 ? (
-                      <TypingDots />
-                    ) : (
-                      ""
-                    ))}
-                </div>
+      <div className="glass-card overflow-hidden p-0">
+        {/* Header bar */}
+        <div className="flex items-center justify-between gap-3 border-b border-[var(--border-default)] px-5 py-4">
+          <div className="flex items-center gap-3">
+            <span
+              className="relative flex h-9 w-9 items-center justify-center rounded-xl text-white"
+              style={{
+                background: "linear-gradient(135deg, #8B5CF6, #6D5CF5)",
+                boxShadow: "0 4px 14px rgba(139,92,246,0.4)",
+              }}
+            >
+              <Cpu size={17} strokeWidth={2.2} />
+              <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-[var(--card)] bg-emerald-400" />
+            </span>
+            <div>
+              <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#8B5CF6]">
+                AI Neural Engine
               </div>
-            ))
-          )}
-          <div ref={chatEndRef} />
+              <h2 className="mt-0.5 text-[15px] font-bold tracking-[-0.01em] text-[var(--text-primary)]">
+                Ask your pipeline data
+              </h2>
+            </div>
+          </div>
+          <Badge accent="#8B5CF6">Live</Badge>
         </div>
 
-        {/* Input */}
-        <PromptInputBox
-          onSend={(msg) => sendChat(msg)}
-          isLoading={streaming}
-          placeholder="Ask about your pipeline data..."
-          className="border-[#444444]/60 bg-[#16171A]"
-        />
+        <div className="p-5">
+          {/* Suggestion chips */}
+          {chatMessages.length === 0 && (
+            <div className="mb-3 flex flex-wrap gap-2">
+              {SUGGESTIONS.map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => sendChat(s)}
+                  className="pressable inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11.5px] font-medium transition-all duration-200"
+                  style={{
+                    background: "var(--bg-nav)",
+                    borderColor: "var(--border-default)",
+                    color: "var(--text-secondary)",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = `${accentColor}12`;
+                    e.currentTarget.style.borderColor = `${accentColor}66`;
+                    e.currentTarget.style.color = accentColor;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = "var(--bg-nav)";
+                    e.currentTarget.style.borderColor = "var(--border-default)";
+                    e.currentTarget.style.color = "var(--text-secondary)";
+                  }}
+                >
+                  <Sparkles size={11} className="opacity-60" />
+                  {s}
+                </button>
+              ))}
+            </div>
+          )}
 
-        <p className="mt-2 text-[11px] text-[#888888]">
-          claude-sonnet-4-20250514 · max 400 tokens · context: live pipeline
-          data
-        </p>
+          {/* Chat history */}
+          <div
+            className="mb-3 max-h-80 min-h-[150px] space-y-3 overflow-y-auto rounded-2xl p-4"
+            style={{
+              background: "linear-gradient(180deg, #17181C, #0E0F12)",
+              boxShadow:
+                "inset 0 1px 0 rgba(255,255,255,0.04), inset 0 0 0 1px rgba(255,255,255,0.07)",
+            }}
+          >
+            {chatMessages.length === 0 ? (
+              <div className="flex h-full flex-col items-center justify-center gap-2 py-8 text-center">
+                <span
+                  className="flex h-10 w-10 items-center justify-center rounded-full"
+                  style={{ background: "rgba(139,92,246,0.16)", color: "#A78BFA" }}
+                >
+                  <Sparkles size={18} strokeWidth={2.2} />
+                </span>
+                <p className="text-[12.5px] text-[#9aa0aa]">
+                  Ask a question or pick a suggestion to begin.
+                </p>
+              </div>
+            ) : (
+              chatMessages.map((m, i) =>
+                m.role === "user" ? (
+                  <div key={i} className="chat-msg flex justify-end">
+                    <div
+                      className="max-w-[82%] rounded-2xl rounded-tr-sm px-3.5 py-2.5 text-[13px] leading-relaxed text-white"
+                      style={{
+                        background: `linear-gradient(135deg, ${accentColor}, ${accentColor}CC)`,
+                        boxShadow: `0 4px 14px ${accentColor}44`,
+                      }}
+                    >
+                      {m.content}
+                    </div>
+                  </div>
+                ) : (
+                  <div key={i} className="chat-msg flex items-start gap-2.5">
+                    <span
+                      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-[9px] font-bold text-white"
+                      style={{ background: "linear-gradient(135deg, #3A3A3A, #111)" }}
+                    >
+                      JE
+                    </span>
+                    <div className="max-w-[82%] rounded-2xl rounded-tl-sm border border-white/10 bg-white/[0.06] px-3.5 py-2.5 text-[13px] leading-relaxed text-gray-100">
+                      {m.content ||
+                        (streaming && i === chatMessages.length - 1 ? (
+                          <TypingDots />
+                        ) : (
+                          ""
+                        ))}
+                    </div>
+                  </div>
+                ),
+              )
+            )}
+            <div ref={chatEndRef} />
+          </div>
+
+          {/* Input */}
+          <PromptInputBox
+            onSend={(msg) => sendChat(msg)}
+            isLoading={streaming}
+            placeholder="Ask about your pipeline data..."
+            className="border-[#444444]/60 bg-[#16171A]"
+          />
+
+          <p className="mt-2.5 flex items-center gap-1.5 text-[11px] text-[#888888]">
+            <Cpu size={12} /> gemini-2.5-flash · max 400 tokens · context: live
+            pipeline data
+          </p>
+        </div>
       </div>
     </div>
   );

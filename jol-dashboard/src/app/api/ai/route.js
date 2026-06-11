@@ -1,14 +1,56 @@
-const ANTHROPIC_KEY =
-  process.env.ANTHROPIC_API_KEY || process.env.NEXT_PUBLIC_ANTHROPIC_KEY;
+// AI backend for the Insights module, powered by Google Gemini.
+//
+// The client (AIInsights.jsx) speaks an Anthropic-style contract:
+//   - narrative: POST { type:"narrative", system, messages, maxTokens } -> { text }
+//   - chat:      POST { type:"chat", ... } -> SSE of { type:"content_block_delta",
+//                delta:{ type:"text_delta", text } } events, terminated by [DONE]
+// So we call Gemini here and translate its response/stream into that shape —
+// the frontend stays untouched.
 
-const CLAUDE_URL = "https://api.anthropic.com/v1/messages";
-const HEADERS = {
-  "Content-Type": "application/json",
-  "anthropic-version": "2023-06-01",
-};
+const GEMINI_KEY = process.env.GEMINI_API_KEY;
+// Swappable without a code change. gemini-2.5-flash has a generous free-tier
+// quota; gemini-3.5-flash is newer but capped at ~20 requests/day on free tier.
+const MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+const BASE = "https://generativelanguage.googleapis.com/v1beta/models";
+
+// Gemini occasionally returns 503 UNAVAILABLE ("high demand") on shared
+// capacity — that's transient, so retry with exponential backoff. We do NOT
+// retry 429 (RESOURCE_EXHAUSTED): that's a quota/rate ceiling, and hammering it
+// only wastes more of the budget. Quota errors fail fast and surface clearly
+// (the narrative/city sections then fall back to rule-based output).
+async function fetchGeminiWithRetry(endpoint, payload, retries = 4) {
+  let res;
+  for (let attempt = 0; ; attempt++) {
+    res = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-goog-api-key": GEMINI_KEY,
+      },
+      body: JSON.stringify(payload),
+    });
+    if (res.status !== 503 || attempt >= retries) return res;
+    const delay = Math.min(8000, 500 * 2 ** attempt) + Math.random() * 250;
+    await new Promise((r) => setTimeout(r, delay));
+  }
+}
+
+// Anthropic-style roles ("user"/"assistant") + string content -> Gemini's
+// "user"/"model" roles with parts arrays.
+function toGeminiContents(messages = []) {
+  return messages
+    .filter((m) => m && m.content)
+    .map((m) => ({
+      role: m.role === "assistant" ? "model" : "user",
+      parts: [{ text: String(m.content) }],
+    }));
+}
+
+const textFromCandidate = (data) =>
+  data?.candidates?.[0]?.content?.parts?.map((p) => p?.text ?? "").join("") ?? "";
 
 export async function POST(request) {
-  if (!ANTHROPIC_KEY || ANTHROPIC_KEY === "your_key_here") {
+  if (!GEMINI_KEY || GEMINI_KEY === "your_key_here") {
     return Response.json({ error: "NO_KEY" }, { status: 401 });
   }
 
@@ -20,47 +62,94 @@ export async function POST(request) {
   }
 
   const { type, messages, system, maxTokens = 350 } = body;
+  const isChat = type === "chat";
 
-  const requestBody = {
-    model: "claude-sonnet-4-20250514",
-    max_tokens: maxTokens,
-    stream: type === "chat",
-    ...(system ? { system } : {}),
-    messages: messages || [],
+  const payload = {
+    contents: toGeminiContents(messages),
+    generationConfig: {
+      maxOutputTokens: maxTokens,
+      // gemini-flash-latest is a thinking model; its hidden reasoning would eat
+      // the token budget and truncate these short, data-grounded answers. We
+      // want direct responses, so disable thinking.
+      thinkingConfig: { thinkingBudget: 0 },
+    },
+    ...(system ? { system_instruction: { parts: [{ text: system }] } } : {}),
   };
 
-  let anthropicResponse;
+  const endpoint = isChat
+    ? `${BASE}/${MODEL}:streamGenerateContent?alt=sse`
+    : `${BASE}/${MODEL}:generateContent`;
+
+  let geminiRes;
   try {
-    anthropicResponse = await fetch(CLAUDE_URL, {
-      method: "POST",
-      headers: { ...HEADERS, "x-api-key": ANTHROPIC_KEY },
-      body: JSON.stringify(requestBody),
-    });
+    geminiRes = await fetchGeminiWithRetry(endpoint, payload);
   } catch {
     return Response.json({ error: "FETCH_FAILED" }, { status: 502 });
   }
 
-  if (!anthropicResponse.ok) {
-    const err = await anthropicResponse.text().catch(() => "");
+  if (!geminiRes.ok) {
+    const detail = await geminiRes.text().catch(() => "");
     return Response.json(
-      { error: "ANTHROPIC_ERROR", detail: err },
-      { status: anthropicResponse.status },
+      { error: "GEMINI_ERROR", detail },
+      { status: geminiRes.status },
     );
   }
 
-  if (type === "chat") {
-    // Pass the SSE stream straight through to the client.
-    return new Response(anthropicResponse.body, {
-      headers: {
-        "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache",
-        "X-Accel-Buffering": "no",
-      },
-    });
+  // ── Non-streaming narrative / city recommendation ──
+  if (!isChat) {
+    const data = await geminiRes.json();
+    return Response.json({ text: textFromCandidate(data) });
   }
 
-  // Non-streaming: parse and return the text.
-  const data = await anthropicResponse.json();
-  const text = data.content?.[0]?.text ?? "";
-  return Response.json({ text });
+  // ── Streaming chat: Gemini SSE -> Anthropic-style SSE ──
+  const stream = new ReadableStream({
+    async start(controller) {
+      const encoder = new TextEncoder();
+      const decoder = new TextDecoder();
+      const reader = geminiRes.body.getReader();
+      const send = (obj) =>
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify(obj)}\n\n`));
+      let buffer = "";
+
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() ?? "";
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed.startsWith("data:")) continue;
+            const raw = trimmed.slice(5).trim();
+            if (!raw || raw === "[DONE]") continue;
+            try {
+              const text = textFromCandidate(JSON.parse(raw));
+              if (text) {
+                send({
+                  type: "content_block_delta",
+                  delta: { type: "text_delta", text },
+                });
+              }
+            } catch {
+              // ignore keep-alive / partial lines
+            }
+          }
+        }
+      } catch {
+        // stream interrupted — fall through and close cleanly
+      }
+
+      controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+      controller.close();
+    },
+  });
+
+  return new Response(stream, {
+    headers: {
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache",
+      "X-Accel-Buffering": "no",
+    },
+  });
 }

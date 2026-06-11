@@ -1,6 +1,8 @@
 import { Geist } from "next/font/google";
 import "leaflet/dist/leaflet.css";
 import "./globals.css";
+import FirebaseAnalytics from "@/components/FirebaseAnalytics";
+import { AuthProvider } from "@/components/AuthProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,7 +25,8 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${geistSans.variable} min-h-screen antialiased`}>
       <body className="min-h-screen" suppressHydrationWarning>
-        {children}
+        <FirebaseAnalytics />
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );

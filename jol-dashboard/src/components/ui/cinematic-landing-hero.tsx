@@ -5,6 +5,7 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useAuth } from "@/components/AuthProvider";
 import DisplayCards from "@/components/ui/display-cards";
 import Bucket from "@/components/ui/bucket";
 
@@ -255,6 +256,13 @@ export function CinematicHero({
   const mainCardRef = useRef<HTMLDivElement>(null);
   const mockupRef = useRef<HTMLDivElement>(null);
   const requestRef = useRef<number>(0);
+
+  // Auth-aware CTA: signed-out visitors hit the login page first (and return to
+  // the dashboard after), signed-in visitors go straight through.
+  const { user } = useAuth();
+  const ctaHref = user
+    ? dashboardHref
+    : `/login?next=${encodeURIComponent(dashboardHref)}`;
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -536,7 +544,7 @@ export function CinematicHero({
                 <span className="text-white font-semibold">Jol Energy</span> brings together supplier inflows, buyer pipelines, geo-mapped collection networks, and live metal-market prices — all in one living dashboard driven by Claude AI.
               </p>
               <Link
-                href={dashboardHref}
+                href={ctaHref}
                 className="btn-dashboard inline-flex items-center gap-2 md:gap-3 px-5 py-2.5 md:px-7 md:py-3 rounded-full md:rounded-[1rem] text-xs md:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-transparent self-center lg:self-start"
                 aria-label="Open dashboard"
               >

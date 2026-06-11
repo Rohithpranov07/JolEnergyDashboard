@@ -13,6 +13,7 @@ import MarketIntelligence from "./MarketIntelligence.jsx";
 import AIInsights from "./AIInsights.jsx";
 import AlertsPanel from "./AlertsPanel.jsx";
 import ClickSpark from "./ClickSpark.jsx";
+import { useAuth } from "./AuthProvider";
 import { FloatingChatWidget } from "./ui/floating-chat-widget-shadcnui";
 import { BGPattern } from "./ui/bg-pattern";
 import { supplierStats } from "../data/supplierLeads.js";
@@ -58,6 +59,18 @@ function BoltIcon() {
   );
 }
 
+function LogoutIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"
+      strokeLinejoin="round" aria-hidden="true">
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+      <polyline points="16 17 21 12 16 7" />
+      <line x1="21" y1="12" x2="9" y2="12" />
+    </svg>
+  );
+}
+
 function BellIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
@@ -70,6 +83,7 @@ function BellIcon() {
 }
 
 export default function Dashboard() {
+  const { signOutUser } = useAuth();
   const [activeTab, setActiveTab] = useState("suppliers");
   const [alertsOpen, setAlertsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -357,6 +371,17 @@ export default function Dashboard() {
                   {alertCount}
                 </span>
               )}
+            </button>
+            <button
+              type="button"
+              onClick={() => signOutUser()}
+              aria-label="Sign out"
+              title="Sign out"
+              className="pressable relative flex h-9 w-9 items-center justify-center rounded-xl text-(--text-secondary) transition-colors"
+              onMouseEnter={(e) => { e.currentTarget.style.background = "var(--border-default)"; e.currentTarget.style.color = "var(--text-primary)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = ""; e.currentTarget.style.color = ""; }}
+            >
+              <LogoutIcon />
             </button>
           </div>
 
