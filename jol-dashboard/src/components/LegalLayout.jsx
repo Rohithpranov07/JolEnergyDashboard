@@ -34,7 +34,7 @@ const FOOTER_LINKS = [
  * Shared chrome for the Privacy / Terms / Contact pages. Server component —
  * light glass aesthetic consistent with the rest of the app.
  */
-export default function LegalLayout({ title, updated, children }) {
+export default function LegalLayout({ title, updated, children, bare = false }) {
   return (
     <div
       className="relative min-h-screen overflow-hidden"
@@ -83,17 +83,21 @@ export default function LegalLayout({ title, updated, children }) {
           </p>
         )}
 
-        <div
-          className="glass-card mt-6 p-6 sm:p-8 text-[var(--text-secondary)]
-            [&_a]:text-[#185FA5] [&_a]:underline [&_a]:underline-offset-2
-            [&_h2:first-child]:mt-0 [&_h2]:mt-7 [&_h2]:mb-2 [&_h2]:text-[16.5px] [&_h2]:font-bold [&_h2]:tracking-[-0.01em] [&_h2]:text-[var(--text-primary)]
-            [&_li]:text-[14px] [&_li]:leading-relaxed
-            [&_p]:mb-3 [&_p]:text-[14px] [&_p]:leading-relaxed
-            [&_strong]:font-semibold [&_strong]:text-[var(--text-primary)]
-            [&_ul]:mb-3 [&_ul]:list-disc [&_ul]:space-y-1.5 [&_ul]:pl-5"
-        >
-          {children}
-        </div>
+        {bare ? (
+          <div className="mt-6">{children}</div>
+        ) : (
+          <div
+            className="glass-card mt-6 p-6 sm:p-8 text-[var(--text-secondary)]
+              [&_a]:text-[#185FA5] [&_a]:underline [&_a]:underline-offset-2
+              [&_h2:first-child]:mt-0 [&_h2]:mt-7 [&_h2]:mb-2 [&_h2]:text-[16.5px] [&_h2]:font-bold [&_h2]:tracking-[-0.01em] [&_h2]:text-[var(--text-primary)]
+              [&_li]:text-[14px] [&_li]:leading-relaxed
+              [&_p]:mb-3 [&_p]:text-[14px] [&_p]:leading-relaxed
+              [&_strong]:font-semibold [&_strong]:text-[var(--text-primary)]
+              [&_ul]:mb-3 [&_ul]:list-disc [&_ul]:space-y-1.5 [&_ul]:pl-5"
+          >
+            {children}
+          </div>
+        )}
 
         {/* Footer */}
         <footer className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-[var(--border-default)] pt-6 text-[13px]">
