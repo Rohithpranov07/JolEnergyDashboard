@@ -23,11 +23,15 @@ const googleProvider = new GoogleAuthProvider();
  */
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  // `loading` is true until Firebase reports the initial auth state, so guards
-  // don't bounce a signed-in user to /login before the SDK has rehydrated.
-  const [loading, setLoading] = useState(true);
+  // Loading until Firebase reports the initial auth state, so guards don't
+  // bounce a signed-in user to /login before the SDK rehydrates. If auth isn't
+  // configured (null), there's nothing to wait for — start un-loaded.
+  const [loading, setLoading] = useState(Boolean(auth));
 
   useEffect(() => {
+    // `auth` is null when Firebase isn't configured (missing env vars); there's
+    // nothing to subscribe to, and `loading` already starts false in that case.
+    if (!auth) return;
     const unsubscribe = onAuthStateChanged(auth, (nextUser) => {
       setUser(nextUser);
       setLoading(false);
@@ -35,15 +39,24 @@ export function AuthProvider({ children }) {
     return unsubscribe;
   }, []);
 
+  const ensureAuth = () => {
+    if (!auth) {
+      throw new Error(
+        "Firebase Auth isn't configured — set the NEXT_PUBLIC_FIREBASE_* env vars.",
+      );
+    }
+    return auth;
+  };
+
   const value = {
     user,
     loading,
     signUp: (email, password) =>
-      createUserWithEmailAndPassword(auth, email, password),
+      createUserWithEmailAndPassword(ensureAuth(), email, password),
     signIn: (email, password) =>
-      signInWithEmailAndPassword(auth, email, password),
-    signInWithGoogle: () => signInWithPopup(auth, googleProvider),
-    signOutUser: () => signOut(auth),
+      signInWithEmailAndPassword(ensureAuth(), email, password),
+    signInWithGoogle: () => signInWithPopup(ensureAuth(), googleProvider),
+    signOutUser: () => signOut(ensureAuth()),
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

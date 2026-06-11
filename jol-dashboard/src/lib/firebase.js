@@ -31,7 +31,18 @@ export const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 // Auth instance — used by <AuthProvider> and any client component that needs
 // the current user. Email/Password must be enabled in the Firebase console
 // (Authentication → Sign-in method) for sign-up / sign-in to work.
-export const auth = getAuth(app);
+//
+// getAuth() throws `auth/invalid-api-key` when the config is missing — which
+// happens during a build/prerender before the NEXT_PUBLIC_FIREBASE_* env vars
+// are set (e.g. a first Vercel deploy). Guard it so the build never crashes;
+// `auth` is null until the env vars are configured, and consumers handle that.
+export const auth = (() => {
+  try {
+    return getAuth(app);
+  } catch {
+    return null;
+  }
+})();
 
 // Analytics reads `window`, so it can only run in the browser — and only where
 // the platform supports it (it's a no-op in unsupported environments / SSR).
