@@ -746,15 +746,24 @@ function LoginPage() {
         </div>
 
         <div className="relative z-20 flex items-center gap-8 text-sm text-primary-foreground/60">
-          <a href="#" className="hover:text-primary-foreground transition-colors">
+          <Link
+            href="/privacy"
+            className="hover:text-primary-foreground transition-colors"
+          >
             Privacy Policy
-          </a>
-          <a href="#" className="hover:text-primary-foreground transition-colors">
+          </Link>
+          <Link
+            href="/terms"
+            className="hover:text-primary-foreground transition-colors"
+          >
             Terms of Service
-          </a>
-          <a href="#" className="hover:text-primary-foreground transition-colors">
+          </Link>
+          <Link
+            href="/contact"
+            className="hover:text-primary-foreground transition-colors"
+          >
             Contact
-          </a>
+          </Link>
         </div>
 
         {/* Decorative elements */}
