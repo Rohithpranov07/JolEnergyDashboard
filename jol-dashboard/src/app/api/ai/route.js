@@ -13,11 +13,13 @@ const GEMINI_KEY = process.env.GEMINI_API_KEY;
 const MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
 const BASE = "https://generativelanguage.googleapis.com/v1beta/models";
 
-// Gemini occasionally returns 503 UNAVAILABLE ("high demand") on shared
-// capacity — that's transient, so retry with exponential backoff. We do NOT
-// retry 429 (RESOURCE_EXHAUSTED): that's a quota/rate ceiling, and hammering it
-// only wastes more of the budget. Quota errors fail fast and surface clearly
-// (the narrative/city sections then fall back to rule-based output).
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// Gemini returns 503 UNAVAILABLE ("high demand") on shared capacity and 429
+// RESOURCE_EXHAUSTED when a rate/quota limit is hit. 503 is always transient →
+// exponential backoff. 429 is retried only when the server's `retryDelay` hint
+// is short (a per-minute burst); a long hint means the daily quota is gone, so
+// we fail fast and let the caller surface it / fall back to rule-based output.
 async function fetchGeminiWithRetry(endpoint, payload, retries = 4) {
   let res;
   for (let attempt = 0; ; attempt++) {
@@ -29,9 +31,25 @@ async function fetchGeminiWithRetry(endpoint, payload, retries = 4) {
       },
       body: JSON.stringify(payload),
     });
-    if (res.status !== 503 || attempt >= retries) return res;
-    const delay = Math.min(8000, 500 * 2 ** attempt) + Math.random() * 250;
-    await new Promise((r) => setTimeout(r, delay));
+
+    if (res.ok || attempt >= retries) return res;
+
+    if (res.status === 503) {
+      await sleep(Math.min(8000, 500 * 2 ** attempt) + Math.random() * 250);
+      continue;
+    }
+
+    if (res.status === 429 && attempt < 2) {
+      const body = await res.clone().text().catch(() => "");
+      const match = body.match(/"retryDelay":\s*"(\d+(?:\.\d+)?)s"/);
+      const waitMs = match ? Math.ceil(parseFloat(match[1]) * 1000) : 3000;
+      if (waitMs <= 8000) {
+        await sleep(waitMs + 300);
+        continue;
+      }
+    }
+
+    return res;
   }
 }
 

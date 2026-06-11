@@ -100,6 +100,12 @@ function buildAlerts() {
 
 const MODULE_ALERTS = buildAlerts();
 
+// Session cache: the narrative + city recommendation are fetched once and reused
+// across tab switches (the dashboard remounts this module on every AI-tab visit),
+// so we don't burn Gemini quota re-asking the same questions. Cleared on reload.
+let narrativeCache = null; // { text, error, noKey }
+let cityCache = null; // { text, error }
+
 // ─── API helpers ──────────────────────────────────────────────────────────────
 
 async function callAI({ system, userContent, maxTokens }) {
@@ -268,16 +274,18 @@ function TypingDots() {
 
 export default function AIInsights({ accentColor = "#F0656A" }) {
   // Section 1 – Narrative
-  const [noApiKey, setNoApiKey] = useState(false);
+  const [noApiKey, setNoApiKey] = useState(narrativeCache?.noKey ?? false);
 
-  const [narrativeText, setNarrativeText] = useState("");
-  const [narrativeLoading, setNarrativeLoading] = useState(true);
-  const [narrativeError, setNarrativeError] = useState(false);
+  const [narrativeText, setNarrativeText] = useState(narrativeCache?.text ?? "");
+  const [narrativeLoading, setNarrativeLoading] = useState(!narrativeCache);
+  const [narrativeError, setNarrativeError] = useState(
+    narrativeCache?.error ?? false,
+  );
 
   // Section 2 – City recommendation
-  const [cityText, setCityText] = useState("");
-  const [cityLoading, setCityLoading] = useState(true);
-  const [cityError, setCityError] = useState(false);
+  const [cityText, setCityText] = useState(cityCache?.text ?? "");
+  const [cityLoading, setCityLoading] = useState(!cityCache);
+  const [cityError, setCityError] = useState(cityCache?.error ?? false);
 
   // Section 3 – Alerts
   const [dismissedIds, setDismissedIds] = useState(new Set());
@@ -299,6 +307,8 @@ export default function AIInsights({ accentColor = "#F0656A" }) {
   useEffect(() => {
     if (hasFetched.current) return;
     hasFetched.current = true;
+    // Already fetched earlier this session — state was seeded from the cache.
+    if (narrativeCache && cityCache) return;
 
     const narrativeSystem =
       "You are a business analyst assistant for Jol Energy, a Li-ion battery recycling startup. Analyse the pipeline data and give a 2-3 sentence business narrative. Be specific with numbers. Be direct and actionable. No preamble, no headers – just the narrative paragraph.";
@@ -322,17 +332,26 @@ export default function AIInsights({ accentColor = "#F0656A" }) {
 
       if (narrativeResult.status === "fulfilled") {
         setNarrativeText(narrativeResult.value);
+        narrativeCache = {
+          text: narrativeResult.value,
+          error: false,
+          noKey: false,
+        };
       } else {
         const msg = narrativeResult.reason?.message || "";
-        if (msg.includes("NO_KEY") || msg.includes("401")) setNoApiKey(true);
+        const noKey = msg.includes("NO_KEY") || msg.includes("401");
+        if (noKey) setNoApiKey(true);
         setNarrativeError(true);
+        narrativeCache = { text: "", error: true, noKey };
       }
       setNarrativeLoading(false);
 
       if (cityResult.status === "fulfilled") {
         setCityText(cityResult.value);
+        cityCache = { text: cityResult.value, error: false };
       } else {
         setCityError(true);
+        cityCache = { text: "", error: true };
       }
       setCityLoading(false);
     })();
