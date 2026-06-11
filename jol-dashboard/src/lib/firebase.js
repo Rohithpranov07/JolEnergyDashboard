@@ -1,9 +1,11 @@
 // Firebase initialization for Jol Energy.
 //
-// The web config below is safe to ship in client code — these are public
-// project identifiers, not secrets. Access is gated by Firebase Security
-// Rules, not by hiding this object.
-// https://firebase.google.com/docs/projects/api-keys#api-keys-for-firebase-are-different
+// The web config comes from NEXT_PUBLIC_FIREBASE_* env vars (see .env.example).
+// Firebase web keys aren't secrets — security is enforced by Firebase rules and
+// authorized domains, not by hiding the key — but GitHub secret scanning flags
+// any hardcoded `AIza…` Google API key, so we keep it out of source. These vars
+// are inlined into the client bundle at build time, which is expected for a
+// browser SDK.
 //
 // To use a Firebase product later, import the matching helper here and export
 // a getter (e.g. `getFirestore(app)`, `getAuth(app)`), then consume it from a
@@ -13,13 +15,13 @@ import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCKJb3OUxy7LO-D_MSSbWmeZfRTYZ-uOV0",
-  authDomain: "jolenergydashboard.firebaseapp.com",
-  projectId: "jolenergydashboard",
-  storageBucket: "jolenergydashboard.firebasestorage.app",
-  messagingSenderId: "568489772121",
-  appId: "1:568489772121:web:3948867da6767f977e5d48",
-  measurementId: "G-DRG8X6GJXH",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
 // Reuse the existing app instance across HMR reloads and repeated imports so we
