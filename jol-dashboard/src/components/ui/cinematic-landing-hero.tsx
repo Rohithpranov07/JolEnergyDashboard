@@ -120,9 +120,6 @@ const INJECTED_STYLES = `
       -webkit-text-fill-color: transparent;
       background-clip: text;
       transform: translateZ(0);
-      filter:
-          drop-shadow(0px 8px 20px rgba(24,95,165,0.25))
-          drop-shadow(0px 2px 4px rgba(24,95,165,0.15));
   }
 
   .text-card-silver-matte {
@@ -131,26 +128,22 @@ const INJECTED_STYLES = `
       -webkit-text-fill-color: transparent;
       background-clip: text;
       transform: translateZ(0);
-      filter:
-          drop-shadow(0px 12px 24px rgba(0,0,0,0.8))
-          drop-shadow(0px 4px 8px rgba(0,0,0,0.6));
   }
 
   .premium-depth-card {
       background: linear-gradient(145deg, #102A5C 0%, #060D1A 100%);
       box-shadow:
-          0 40px 100px -20px rgba(0,0,0,0.9),
-          0 20px 40px -20px rgba(0,0,0,0.8),
-          inset 0 1px 2px rgba(255,255,255,0.15),
-          inset 0 -2px 4px rgba(0,0,0,0.8);
+          0 30px 60px -15px rgba(0,0,0,0.85),
+          inset 0 1px 2px rgba(255,255,255,0.15);
       border: 1px solid rgba(255,255,255,0.04);
       position: relative;
+      will-change: transform;
   }
 
   .card-sheen {
       position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 50;
       background: radial-gradient(800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(24,95,165,0.08) 0%, transparent 40%);
-      mix-blend-mode: screen; transition: opacity 0.3s ease;
+      transition: opacity 0.3s ease;
       contain: layout style;
       will-change: auto;
   }
@@ -162,7 +155,6 @@ const INJECTED_STYLES = `
           inset 0 0 0 7px #000,
           0 40px 80px -15px rgba(0,0,0,0.9),
           0 15px 25px -5px rgba(0,0,0,0.7);
-      transform-style: preserve-3d;
   }
 
   .hardware-btn {
@@ -188,15 +180,11 @@ const INJECTED_STYLES = `
   }
 
   .floating-ui-badge {
-      background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.01) 100%);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
+      background: rgba(12, 20, 40, 0.88);
       box-shadow:
           0 0 0 1px rgba(255,255,255,0.1),
-          0 25px 50px -12px rgba(0,0,0,0.8),
-          inset 0 1px 1px rgba(255,255,255,0.2),
-          inset 0 -1px 1px rgba(0,0,0,0.5);
-      will-change: transform, opacity;
+          0 16px 32px -8px rgba(0,0,0,0.7),
+          inset 0 1px 1px rgba(255,255,255,0.12);
       transform: translateZ(0);
   }
 
@@ -265,28 +253,28 @@ export function CinematicHero({
     : `/login?next=${encodeURIComponent(dashboardHref)}`;
 
   useEffect(() => {
+    // Skip tilt on touch-only devices — no hover interaction and expensive on mobile
+    if (!window.matchMedia("(pointer: fine)").matches) return;
+
+    const quickRotY = gsap.quickTo(mockupRef.current, "rotationY", { ease: "power3.out", duration: 1.2 });
+    const quickRotX = gsap.quickTo(mockupRef.current, "rotationX", { ease: "power3.out", duration: 1.2 });
+
     const handleMouseMove = (e: MouseEvent) => {
       if (window.scrollY > window.innerHeight * 2) return;
       cancelAnimationFrame(requestRef.current);
       requestRef.current = requestAnimationFrame(() => {
-        if (mainCardRef.current && mockupRef.current) {
+        if (mainCardRef.current) {
           const rect = mainCardRef.current.getBoundingClientRect();
-          const mouseX = e.clientX - rect.left;
-          const mouseY = e.clientY - rect.top;
-          mainCardRef.current.style.setProperty("--mouse-x", `${mouseX}px`);
-          mainCardRef.current.style.setProperty("--mouse-y", `${mouseY}px`);
-          const xVal = (e.clientX / window.innerWidth - 0.5) * 2;
-          const yVal = (e.clientY / window.innerHeight - 0.5) * 2;
-          gsap.to(mockupRef.current, {
-            rotationY: xVal * 10,
-            rotationX: -yVal * 10,
-            ease: "power3.out",
-            duration: 1.2,
-          });
+          mainCardRef.current.style.setProperty("--mouse-x", `${e.clientX - rect.left}px`);
+          mainCardRef.current.style.setProperty("--mouse-y", `${e.clientY - rect.top}px`);
         }
+        const xVal = (e.clientX / window.innerWidth - 0.5) * 2;
+        const yVal = (e.clientY / window.innerHeight - 0.5) * 2;
+        quickRotY(xVal * 8);
+        quickRotX(-yVal * 8);
       });
     };
-    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
       cancelAnimationFrame(requestRef.current);
@@ -294,17 +282,15 @@ export function CinematicHero({
   }, []);
 
   useEffect(() => {
-    const isMobile = window.innerWidth < 768;
-
     const ctx = gsap.context(() => {
-      gsap.set(".text-track", { autoAlpha: 0, y: 60, scale: 0.85, rotationX: -20, willChange: "transform, opacity" });
+      gsap.set(".text-track", { autoAlpha: 0, y: 60, scale: 0.88 });
       gsap.set(".text-days", { autoAlpha: 1, clipPath: "inset(0 100% 0 0)" });
       gsap.set(".main-card", { y: window.innerHeight + 200, autoAlpha: 1 });
       gsap.set([".card-left-text", ".card-right-text", ".mockup-scroll-wrapper", ".floating-badge", ".phone-widget", ".card-nav-cards"], { autoAlpha: 0 });
 
       const introTl = gsap.timeline({ delay: 0.3 });
       introTl
-        .to(".text-track", { duration: 1.8, autoAlpha: 1, y: 0, scale: 1, rotationX: 0, ease: "expo.out" })
+        .to(".text-track", { duration: 1.8, autoAlpha: 1, y: 0, scale: 1, ease: "expo.out" })
         .to(".text-days", { duration: 1.4, clipPath: "inset(0 0% 0 0)", ease: "power4.inOut" }, "-=1.0");
 
       const scrollTl = gsap.timeline({
@@ -313,34 +299,35 @@ export function CinematicHero({
           start: "top top",
           end: "+=2000",
           pin: true,
-          scrub: 2.0,
+          scrub: 1.5,
           anticipatePin: 1,
           fastScrollEnd: true,
           preventOverlaps: true,
+          invalidateOnRefresh: true,
         },
       });
 
       scrollTl
-        .to([".hero-text-wrapper", ".bg-grid-hero"], { scale: 1.15, opacity: 0, force3D: true, ease: "power2.inOut", duration: 2 }, 0)
-        .to(".main-card", { y: 0, force3D: true, ease: "power3.inOut", duration: 2 }, 0)
-        .to(".main-card", { scale: 1.18, borderRadius: "0px", force3D: true, ease: "power3.inOut", duration: 1.5 })
+        .to([".hero-text-wrapper", ".bg-grid-hero"], { scale: 1.12, opacity: 0, ease: "power2.inOut", duration: 2 }, 0)
+        .to(".main-card", { y: 0, ease: "power3.inOut", duration: 2 }, 0)
+        .to(".main-card", { scale: 1.18, borderRadius: "0px", ease: "power3.inOut", duration: 1.5 })
         .fromTo(".mockup-scroll-wrapper",
-          { y: 300, z: -500, rotationX: 50, rotationY: -30, autoAlpha: 0, scale: 0.6 },
-          { y: 0, z: 0, rotationX: 0, rotationY: 0, autoAlpha: 1, scale: 1, force3D: true, ease: "expo.out", duration: 2.5 }, "-=0.8"
+          { y: 250, autoAlpha: 0, scale: 0.75 },
+          { y: 0, autoAlpha: 1, scale: 1, ease: "expo.out", duration: 2.5 }, "-=0.8"
         )
-        .fromTo(".phone-widget", { y: 40, autoAlpha: 0, scale: 0.95 }, { y: 0, autoAlpha: 1, scale: 1, force3D: true, stagger: 0.15, ease: "back.out(1.2)", duration: 1.5 }, "-=1.5")
+        .fromTo(".phone-widget", { y: 30, autoAlpha: 0 }, { y: 0, autoAlpha: 1, stagger: 0.12, ease: "power3.out", duration: 1.2 }, "-=1.5")
         .to(".progress-ring", { strokeDashoffset: 80, duration: 2, ease: "power3.inOut" }, "-=1.2")
         .to(".counter-val", { innerHTML: 87, snap: { innerHTML: 1 }, duration: 2, ease: "expo.out" }, "-=2.0")
-        .fromTo(".kpi-bar", { scaleX: 0 }, { scaleX: 1, force3D: true, stagger: 0.2, ease: "power3.out", duration: 1.2 }, "-=1.5")
-        .fromTo(".floating-badge", { y: 100, autoAlpha: 0, scale: 0.7, rotationZ: -10 }, { y: 0, autoAlpha: 1, scale: 1, rotationZ: 0, force3D: true, ease: "back.out(1.5)", duration: 1.5, stagger: 0.2 }, "-=2.0")
-        .fromTo(".card-left-text", { x: -50, autoAlpha: 0 }, { x: 0, autoAlpha: 1, force3D: true, ease: "power4.out", duration: 1.5 }, "-=1.5")
-        .fromTo(".card-right-text", { x: 50, autoAlpha: 0, scale: 0.8 }, { x: 0, autoAlpha: 1, scale: 1, force3D: true, ease: "expo.out", duration: 1.5 }, "<")
-        .fromTo(".card-nav-cards", { y: 60, autoAlpha: 0 }, { y: 0, autoAlpha: 1, force3D: true, ease: "expo.out", duration: 1.5 }, "-=1.0")
+        .fromTo(".kpi-bar", { scaleX: 0 }, { scaleX: 1, stagger: 0.18, ease: "power3.out", duration: 1.2 }, "-=1.5")
+        .fromTo(".floating-badge", { y: 80, autoAlpha: 0, scale: 0.82 }, { y: 0, autoAlpha: 1, scale: 1, ease: "back.out(1.2)", duration: 1.4, stagger: 0.2 }, "-=2.0")
+        .fromTo(".card-left-text", { x: -40, autoAlpha: 0 }, { x: 0, autoAlpha: 1, ease: "power4.out", duration: 1.4 }, "-=1.5")
+        .fromTo(".card-right-text", { x: 40, autoAlpha: 0, scale: 0.88 }, { x: 0, autoAlpha: 1, scale: 1, ease: "expo.out", duration: 1.4 }, "<")
+        .fromTo(".card-nav-cards", { y: 50, autoAlpha: 0 }, { y: 0, autoAlpha: 1, ease: "expo.out", duration: 1.4 }, "-=1.0")
         .to({}, { duration: 2.5 })
         .to([".mockup-scroll-wrapper", ".floating-badge", ".card-left-text", ".card-right-text", ".card-nav-cards"], {
-          scale: 0.9, y: -40, z: -200, autoAlpha: 0, force3D: true, ease: "power3.in", duration: 1.2, stagger: 0.05,
+          scale: 0.92, y: -30, autoAlpha: 0, ease: "power3.in", duration: 1.2, stagger: 0.05,
         })
-        .to(".main-card", { y: -window.innerHeight - 300, force3D: true, ease: "power3.in", duration: 1.5 });
+        .to(".main-card", { y: -window.innerHeight - 300, ease: "power3.in", duration: 1.5 });
 
     }, containerRef);
 
@@ -354,7 +341,6 @@ export function CinematicHero({
         "relative w-screen h-screen overflow-hidden flex items-center justify-center bg-white text-slate-900 font-sans antialiased",
         className
       )}
-      style={{ perspective: "1500px" }}
       {...props}
     >
       <style dangerouslySetInnerHTML={{ __html: INJECTED_STYLES }} />
@@ -377,7 +363,7 @@ export function CinematicHero({
 
 
       {/* Foreground card layer */}
-      <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none" style={{ perspective: "1500px" }}>
+      <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
         <div
           ref={mainCardRef}
           className="main-card premium-depth-card relative overflow-hidden gsap-reveal flex items-center justify-center pointer-events-auto w-[94vw] md:w-[85vw] h-[94vh] md:h-[85vh] rounded-[32px] md:rounded-[40px]"
@@ -423,12 +409,11 @@ export function CinematicHero({
             </div>
 
             {/* Center — dashboard mockup */}
-            <div className="mockup-scroll-wrapper order-2 lg:order-2 relative w-full h-[260px] md:h-[380px] lg:h-[600px] flex items-center justify-center z-10" style={{ perspective: "1000px" }}>
+            <div className="mockup-scroll-wrapper order-2 lg:order-2 relative w-full h-[260px] md:h-[380px] lg:h-[600px] flex items-center justify-center z-10">
               <div className="relative w-full h-full flex items-center justify-center transform scale-[0.48] md:scale-85 lg:scale-100">
                 <div
                   ref={mockupRef}
                   className="relative w-[280px] h-[580px] rounded-[3rem] iphone-bezel flex flex-col will-change-transform"
-                  style={{ transformStyle: "preserve-3d" }}
                 >
                   {/* Physical buttons */}
                   <div className="absolute top-[120px] -left-[3px] w-[3px] h-[25px] hardware-btn rounded-l-md z-0" aria-hidden="true" />
@@ -442,7 +427,7 @@ export function CinematicHero({
 
                     {/* Dynamic Island */}
                     <div className="absolute top-[5px] left-1/2 -translate-x-1/2 w-[100px] h-[28px] bg-black rounded-full z-50 flex items-center justify-end px-3" style={{ boxShadow: "inset 0 -1px 2px rgba(255,255,255,0.1)" }}>
-                      <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" style={{ boxShadow: "0 0 8px rgba(34,197,94,0.8)" }} />
+                      <div className="w-1.5 h-1.5 rounded-full bg-green-500" style={{ boxShadow: "0 0 8px rgba(34,197,94,0.8)" }} />
                     </div>
 
                     {/* App content */}
@@ -457,7 +442,7 @@ export function CinematicHero({
                       </div>
 
                       {/* Ring gauge */}
-                      <div className="phone-widget relative w-36 h-36 mx-auto flex items-center justify-center" style={{ filter: "drop-shadow(0 15px 25px rgba(0,0,0,0.8))" }}>
+                      <div className="phone-widget relative w-36 h-36 mx-auto flex items-center justify-center">
                         <svg className="absolute inset-0 w-full h-full" aria-hidden="true">
                           <circle cx="72" cy="72" r="56" fill="none" stroke="rgba(255,255,255,0.03)" strokeWidth="10" />
                           <circle className="progress-ring" cx="72" cy="72" r="56" fill="none" stroke="#185FA5" strokeWidth="10" />
@@ -557,7 +542,7 @@ export function CinematicHero({
                 </svg>
               </Link>
 
-              <div className="flex mt-2 md:mt-5 items-center gap-1.5 md:gap-2 text-[8px] md:text-[11px] font-medium text-blue-200/70 bg-[#185FA5]/10 w-max px-2.5 py-1 md:px-3 md:py-1.5 rounded-full border border-blue-400/20 backdrop-blur-sm self-center lg:self-start tracking-wide">
+              <div className="flex mt-2 md:mt-5 items-center gap-1.5 md:gap-2 text-[8px] md:text-[11px] font-medium text-blue-200/70 bg-[#185FA5]/10 w-max px-2.5 py-1 md:px-3 md:py-1.5 rounded-full border border-blue-400/20 self-center lg:self-start tracking-wide">
                 <svg className="w-2.5 md:w-3.5 h-2.5 md:h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>

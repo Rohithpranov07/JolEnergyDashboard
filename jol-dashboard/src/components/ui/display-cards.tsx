@@ -27,7 +27,7 @@ function DisplayCard({
     <Link
       href={href}
       className={cn(
-        "relative flex h-[4.5rem] w-[15rem] -skew-y-[8deg] select-none flex-col justify-between rounded-lg border border-white/10 bg-white/5 backdrop-blur-sm px-3 py-2 transition-all duration-700",
+        "relative flex h-[4.5rem] w-[15rem] -skew-y-[8deg] select-none flex-col justify-between rounded-lg border border-white/10 bg-white/5 px-3 py-2 transition-all duration-700",
         "after:absolute after:-right-1 after:top-[-5%] after:h-[110%] after:w-[13rem] after:bg-gradient-to-l after:from-[#060D1A] after:to-transparent after:content-['']",
         "hover:border-white/20 hover:bg-white/10",
         "[&>*]:flex [&>*]:items-center [&>*]:gap-1.5",

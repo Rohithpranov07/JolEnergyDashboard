@@ -66,20 +66,8 @@ const Bucket = () => {
           xmlns="http://www.w3.org/2000/svg"
           className="absolute inset-0 z-0"
         >
-          <foreignObject
-            x="443.561"
-            y="-10.5141"
-            width="211.24"
-            height="166.977"
-          >
-            <div
-              style={{
-                backdropFilter: "blur(11.03px)",
-                clipPath: "url(#bgblur_0_51_65_clip_path)",
-                height: "100%",
-                width: "100%",
-              }}
-            ></div>
+          <foreignObject x="443.561" y="-10.5141" width="211.24" height="166.977">
+            <div style={{ height: "100%", width: "100%" }} />
           </foreignObject>
           <g
             filter="url(#filter1_dddi_51_65)"
@@ -92,20 +80,8 @@ const Bucket = () => {
               shapeRendering="crispEdges"
             />
           </g>
-          <foreignObject
-            x="-3.43323e-05"
-            y="-10.9516"
-            width="215.96"
-            height="167.786"
-          >
-            <div
-              style={{
-                backdropFilter: "blur(11.03px)",
-                clipPath: "url(#bgblur_1_51_65_clip_path)",
-                height: "100%",
-                width: "100%",
-              }}
-            ></div>
+          <foreignObject x="-3.43323e-05" y="-10.9516" width="215.96" height="167.786">
+            <div style={{ height: "100%", width: "100%" }} />
           </foreignObject>
           <g
             filter="url(#filter2_dddi_51_65)"
@@ -118,20 +94,8 @@ const Bucket = () => {
               shapeRendering="crispEdges"
             />
           </g>
-          <foreignObject
-            x="78.7048"
-            y="20.823"
-            width="501.297"
-            height="136.012"
-          >
-            <div
-              style={{
-                backdropFilter: "blur(11.03px)",
-                clipPath: "url(#bgblur_2_51_65_clip_path)",
-                height: "100%",
-                width: "100%",
-              }}
-            ></div>
+          <foreignObject x="78.7048" y="20.823" width="501.297" height="136.012">
+            <div style={{ height: "100%", width: "100%" }} />
           </foreignObject>
           <g
             filter="url(#filter3_dddi_51_65)"
@@ -144,20 +108,8 @@ const Bucket = () => {
               shapeRendering="crispEdges"
             />
           </g>
-          <foreignObject
-            x="78.7048"
-            y="20.823"
-            width="137.255"
-            height="136.012"
-          >
-            <div
-              style={{
-                backdropFilter: "blur(11.03px)",
-                clipPath: "url(#bgblur_3_51_65_clip_path)",
-                height: "100%",
-                width: "100%",
-              }}
-            ></div>
+          <foreignObject x="78.7048" y="20.823" width="137.255" height="136.012">
+            <div style={{ height: "100%", width: "100%" }} />
           </foreignObject>
           <g
             filter="url(#filter4_dddi_51_65)"
@@ -907,19 +859,10 @@ const Bucket = () => {
 
           {/* Top Layer Part 2: filter6 Blur (Clipped to Box Width) */}
           <g clipPath="url(#center_box_clip)">
-            <foreignObject x="0" y="0" width="655" height="352">
-              <div
-                style={{
-                  backdropFilter: "blur(60.03px)",
-                  WebkitBackdropFilter: "blur(60.03px)",
-                  height: "100%",
-                  width: "100%",
-                  background: "rgba(255, 255, 255, 0.01)",
-                  clipPath:
-                    "path('M74.6011 164.033L123.116 79.1138L535.59 78.7419L581.532 164.469C588.006 176.55 591.243 182.59 588.568 187.06C585.892 191.529 579.039 191.529 565.333 191.529H90.5591C76.4759 191.529 69.4343 191.529 66.7781 186.953C64.1219 182.376 67.615 176.262 74.6011 164.033Z')",
-                }}
-              ></div>
-            </foreignObject>
+            <path
+              d="M74.6011 164.033L123.116 79.1138L535.59 78.7419L581.532 164.469C588.006 176.55 591.243 182.59 588.568 187.06C585.892 191.529 579.039 191.529 565.333 191.529H90.5591C76.4759 191.529 69.4343 191.529 66.7781 186.953C64.1219 182.376 67.615 176.262 74.6011 164.033Z"
+              fill="rgba(255,255,255,0.06)"
+            />
           </g>
 
           {/* Top Layer Part 2: filter6 */}

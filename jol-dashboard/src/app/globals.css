@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Force light mode — dark: variant only activates with an explicit .dark ancestor (never added) */
+@variant dark (&:is(.dark *));
+
 /* ===========================================================================
    JOL ENERGY - LUMA LIGHT/DARK DESIGN SYSTEM
    Apple-grade | soft frosted glass | aurora light | fluid spring motion
@@ -41,38 +44,6 @@
   --shadow-lg: 0 8px 18px rgba(17,24,39,0.06), 0 28px 60px rgba(17,24,39,0.10);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0B0F17;
-    --foreground: #F3F4F6;
-
-    /* Dark luminous palette */
-    --bg-page:        #0B0F17;
-    --bg-surface:     rgba(17, 24, 39, 0.65);
-    --bg-elevated:    rgba(31, 41, 55, 0.82);
-    --border-subtle:  rgba(243, 244, 246, 0.05);
-    --border-default: rgba(243, 244, 246, 0.08);
-    --border-hover:   rgba(243, 244, 246, 0.16);
-
-    --text-primary:   #F3F4F6;
-    --text-secondary: #9CA3AF;
-    --text-muted:     #6B7280;
-
-    /* Navigation elements */
-    --bg-nav:           rgba(243, 244, 246, 0.06);
-    --bg-tab-indicator: rgba(255, 255, 255, 0.12);
-
-    /* Table row colors */
-    --row-even: rgba(17, 24, 39, 0.0);
-    --row-odd:  rgba(243, 244, 246, 0.012);
-
-    /* Dark mode soft elevation */
-    --shadow-sm: 0 1px 2px rgba(0,0,0,0.2), 0 2px 8px rgba(0,0,0,0.2);
-    --shadow-md: 0 2px 4px rgba(0,0,0,0.2), 0 12px 28px rgba(0,0,0,0.35);
-    --shadow-lg: 0 8px 18px rgba(0,0,0,0.25), 0 28px 60px rgba(0,0,0,0.45);
-  }
-}
-
 /* ── shadcn/ui token compatibility ── */
 :root {
   --primary:            #3D7FE8;
@@ -90,26 +61,6 @@
   --accent-foreground:  #1D1D1F;
   --destructive:        #E24B4A;
   --destructive-foreground: #ffffff;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --primary:            #3D7FE8;
-    --primary-foreground: #ffffff;
-    --card:               #1F2937;
-    --card-foreground:    #F3F4F6;
-    --muted:              rgba(243, 244, 246, 0.08);
-    --muted-foreground:   #9CA3AF;
-    --border:             rgba(243, 244, 246, 0.10);
-    --input:              rgba(243, 244, 246, 0.10);
-    --ring:               #3D7FE8;
-    --popover:            #1F2937;
-    --popover-foreground: #F3F4F6;
-    --accent:             rgba(61, 127, 232, 0.12);
-    --accent-foreground:  #F3F4F6;
-    --destructive:        #E24B4A;
-    --destructive-foreground: #ffffff;
-  }
 }
 
 @theme inline {
@@ -137,7 +88,7 @@
 /* BASE */
 
 html {
-  color-scheme: light dark;
+  color-scheme: light;
 }
 
 body {
@@ -255,19 +206,6 @@ body {
     0 1px 1px rgba(17,24,39,0.03),
     0 8px 24px rgba(17,24,39,0.07),
     0 28px 56px rgba(17,24,39,0.04);
-}
-
-@media (prefers-color-scheme: dark) {
-  .glass-header {
-    background: rgba(17, 24, 39, 0.72);
-    border-color: rgba(243, 244, 246, 0.07);
-    box-shadow:
-      inset 0 1px 0 rgba(255,255,255,0.08),
-      inset 0 -1px 0 rgba(0,0,0,0.12),
-      0 1px 1px rgba(0,0,0,0.2),
-      0 8px 24px rgba(0,0,0,0.28),
-      0 28px 56px rgba(0,0,0,0.2);
-  }
 }
 
 /* KPI card premium */
@@ -599,21 +537,6 @@ body {
   .cursor-glow   { display: none !important; }
   .magnetic-card { transform: none !important; transition: none !important; }
   .ripple        { display: none !important; }
-}
-
-/* Leaflet Dark Mode Support */
-@media (prefers-color-scheme: dark) {
-  .leaflet-tile-container {
-    filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
-  }
-  .leaflet-container {
-    background: #0B0F17 !important;
-  }
-  .leaflet-popup-content-wrapper, .leaflet-popup-tip {
-    background: var(--bg-elevated) !important;
-    color: var(--text-primary) !important;
-    border: 1px solid var(--border-default);
-  }
 }
 
 /* Hide scrollbars for chrome/safari/firefox */
