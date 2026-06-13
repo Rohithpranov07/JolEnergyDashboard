@@ -282,15 +282,18 @@ export function CinematicHero({
   }, []);
 
   useEffect(() => {
+    // Prevent GSAP from catching up with burst frames on first activation
+    gsap.ticker.lagSmoothing(0);
+
     const ctx = gsap.context(() => {
-      gsap.set(".text-track", { autoAlpha: 0, y: 60, scale: 0.88 });
+      gsap.set(".text-track", { autoAlpha: 0, y: 50 });
       gsap.set(".text-days", { autoAlpha: 1, clipPath: "inset(0 100% 0 0)" });
       gsap.set(".main-card", { y: window.innerHeight + 200, autoAlpha: 1 });
       gsap.set([".card-left-text", ".card-right-text", ".mockup-scroll-wrapper", ".floating-badge", ".phone-widget", ".card-nav-cards"], { autoAlpha: 0 });
 
       const introTl = gsap.timeline({ delay: 0.3 });
       introTl
-        .to(".text-track", { duration: 1.8, autoAlpha: 1, y: 0, scale: 1, ease: "expo.out" })
+        .to(".text-track", { duration: 1.8, autoAlpha: 1, y: 0, ease: "expo.out" })
         .to(".text-days", { duration: 1.4, clipPath: "inset(0 0% 0 0)", ease: "power4.inOut" }, "-=1.0");
 
       const scrollTl = gsap.timeline({
@@ -299,7 +302,7 @@ export function CinematicHero({
           start: "top top",
           end: "+=2000",
           pin: true,
-          scrub: 1.5,
+          scrub: 1,
           anticipatePin: 1,
           fastScrollEnd: true,
           preventOverlaps: true,
@@ -308,27 +311,32 @@ export function CinematicHero({
       });
 
       scrollTl
-        .to([".hero-text-wrapper", ".bg-grid-hero"], { scale: 1.12, opacity: 0, ease: "power2.inOut", duration: 2 }, 0)
+        // Fade out text + grid — no scale (avoids mask-image + gradient text repaint)
+        .to([".hero-text-wrapper", ".bg-grid-hero"], { opacity: 0, ease: "power2.out", duration: 1.5 }, 0)
+        // Card flies up — y only, no scale, no borderRadius change
         .to(".main-card", { y: 0, ease: "power3.inOut", duration: 2 }, 0)
-        .to(".main-card", { scale: 1.18, borderRadius: "0px", ease: "power3.inOut", duration: 1.5 })
+        // Mockup slides in — y + opacity only, no scale
         .fromTo(".mockup-scroll-wrapper",
-          { y: 250, autoAlpha: 0, scale: 0.75 },
-          { y: 0, autoAlpha: 1, scale: 1, ease: "expo.out", duration: 2.5 }, "-=0.8"
+          { y: 200, autoAlpha: 0 },
+          { y: 0, autoAlpha: 1, ease: "power3.out", duration: 2 }, "-=0.6"
         )
-        .fromTo(".phone-widget", { y: 30, autoAlpha: 0 }, { y: 0, autoAlpha: 1, stagger: 0.12, ease: "power3.out", duration: 1.2 }, "-=1.5")
-        .to(".progress-ring", { strokeDashoffset: 80, duration: 2, ease: "power3.inOut" }, "-=1.2")
-        .to(".counter-val", { innerHTML: 87, snap: { innerHTML: 1 }, duration: 2, ease: "expo.out" }, "-=2.0")
-        .fromTo(".kpi-bar", { scaleX: 0 }, { scaleX: 1, stagger: 0.18, ease: "power3.out", duration: 1.2 }, "-=1.5")
-        .fromTo(".floating-badge", { y: 80, autoAlpha: 0, scale: 0.82 }, { y: 0, autoAlpha: 1, scale: 1, ease: "back.out(1.2)", duration: 1.4, stagger: 0.2 }, "-=2.0")
-        .fromTo(".card-left-text", { x: -40, autoAlpha: 0 }, { x: 0, autoAlpha: 1, ease: "power4.out", duration: 1.4 }, "-=1.5")
-        .fromTo(".card-right-text", { x: 40, autoAlpha: 0, scale: 0.88 }, { x: 0, autoAlpha: 1, scale: 1, ease: "expo.out", duration: 1.4 }, "<")
-        .fromTo(".card-nav-cards", { y: 50, autoAlpha: 0 }, { y: 0, autoAlpha: 1, ease: "expo.out", duration: 1.4 }, "-=1.0")
-        .to({}, { duration: 2.5 })
+        .fromTo(".phone-widget", { y: 25, autoAlpha: 0 }, { y: 0, autoAlpha: 1, stagger: 0.1, ease: "power2.out", duration: 1 }, "-=1.5")
+        .to(".progress-ring", { strokeDashoffset: 80, duration: 1.8, ease: "power3.inOut" }, "-=1.2")
+        .fromTo(".kpi-bar", { scaleX: 0 }, { scaleX: 1, stagger: 0.15, ease: "power3.out", duration: 1 }, "-=1.5")
+        // Badges and text — y + opacity only, no scale
+        .fromTo(".floating-badge", { y: 60, autoAlpha: 0 }, { y: 0, autoAlpha: 1, ease: "power3.out", duration: 1.2, stagger: 0.18 }, "-=1.8")
+        .fromTo(".card-left-text", { x: -30, autoAlpha: 0 }, { x: 0, autoAlpha: 1, ease: "power3.out", duration: 1.2 }, "-=1.0")
+        .fromTo(".card-right-text", { x: 30, autoAlpha: 0 }, { x: 0, autoAlpha: 1, ease: "power3.out", duration: 1.2 }, "<")
+        .fromTo(".card-nav-cards", { y: 40, autoAlpha: 0 }, { y: 0, autoAlpha: 1, ease: "power3.out", duration: 1.2 }, "-=0.8")
+        .to({}, { duration: 2 })
+        // Exit — opacity fade only, no scale transform
         .to([".mockup-scroll-wrapper", ".floating-badge", ".card-left-text", ".card-right-text", ".card-nav-cards"], {
-          scale: 0.92, y: -30, autoAlpha: 0, ease: "power3.in", duration: 1.2, stagger: 0.05,
+          autoAlpha: 0, ease: "power2.in", duration: 1,
         })
-        .to(".main-card", { y: -window.innerHeight - 300, ease: "power3.in", duration: 1.5 });
+        .to(".main-card", { y: -window.innerHeight - 200, ease: "power3.in", duration: 1.2 });
 
+      // Force eager init so first scroll doesn't trigger layout recalculation
+      ScrollTrigger.refresh();
     }, containerRef);
 
     return () => ctx.revert();
@@ -348,7 +356,7 @@ export function CinematicHero({
       <div className="bg-grid-hero absolute inset-0 z-0 pointer-events-none opacity-60" aria-hidden="true" />
 
       {/* Hero text layer */}
-      <div className="hero-text-wrapper absolute z-10 flex flex-col items-center justify-center text-center w-screen px-4 will-change-transform">
+      <div className="hero-text-wrapper absolute z-10 flex flex-col items-center justify-center text-center w-screen px-4">
         <p className="text-track gsap-reveal text-xs md:text-sm font-semibold tracking-[0.25em] uppercase text-blue-600 mb-4">
           Jol Energy · Business Intelligence
         </p>
@@ -366,7 +374,7 @@ export function CinematicHero({
       <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
         <div
           ref={mainCardRef}
-          className="main-card premium-depth-card relative overflow-hidden gsap-reveal flex items-center justify-center pointer-events-auto w-[94vw] md:w-[85vw] h-[94vh] md:h-[85vh] rounded-[32px] md:rounded-[40px]"
+          className="main-card premium-depth-card relative gsap-reveal flex items-center justify-center pointer-events-auto w-[94vw] md:w-[85vw] h-[94vh] md:h-[85vh] rounded-[32px] md:rounded-[40px]"
         >
           <div className="card-sheen" aria-hidden="true" />
 
@@ -448,7 +456,7 @@ export function CinematicHero({
                           <circle className="progress-ring" cx="72" cy="72" r="56" fill="none" stroke="#185FA5" strokeWidth="10" />
                         </svg>
                         <div className="text-center z-10 flex flex-col items-center">
-                          <span className="counter-val text-3xl font-extrabold tracking-tighter text-white">0</span>
+                          <span className="counter-val text-3xl font-extrabold tracking-tighter text-white">87</span>
                           <span className="text-[7px] text-blue-200/50 uppercase tracking-[0.1em] font-bold mt-0.5">Health</span>
                         </div>
                       </div>

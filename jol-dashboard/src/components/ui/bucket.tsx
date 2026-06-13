@@ -47,7 +47,7 @@ const Bucket = () => {
         const [first, ...rest] = prev;
         return [...rest, first];
       });
-    }, 2000);
+    }, 4000);
 
     return () => clearInterval(interval);
   }, []);
