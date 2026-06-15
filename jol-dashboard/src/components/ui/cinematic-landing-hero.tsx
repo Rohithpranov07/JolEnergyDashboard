@@ -282,8 +282,11 @@ export function CinematicHero({
   }, []);
 
   useEffect(() => {
-    // Prevent GSAP from catching up with burst frames on first activation
-    gsap.ticker.lagSmoothing(0);
+    // Clamp huge frame deltas (e.g. the layout spike when the pin engages on
+    // the first scroll) so time-based tweens advance smoothly instead of
+    // jumping. This is GSAP's default lag-smoothing made explicit — disabling
+    // it with lagSmoothing(0) was the source of the first-scroll stutter.
+    gsap.ticker.lagSmoothing(500, 33);
 
     const ctx = gsap.context(() => {
       gsap.set(".text-track", { autoAlpha: 0, y: 50 });
@@ -291,10 +294,13 @@ export function CinematicHero({
       gsap.set(".main-card", { y: window.innerHeight + 200, autoAlpha: 1 });
       gsap.set([".card-left-text", ".card-right-text", ".mockup-scroll-wrapper", ".floating-badge", ".phone-widget", ".card-nav-cards"], { autoAlpha: 0 });
 
-      const introTl = gsap.timeline({ delay: 0.3 });
+      // Land the headline fast — a long delay + slow reveal read as a slow
+      // page load. Total reveal is now ~1.2s (was ~2.1s) while keeping the
+      // staggered, cinematic feel.
+      const introTl = gsap.timeline({ delay: 0.1 });
       introTl
-        .to(".text-track", { duration: 1.8, autoAlpha: 1, y: 0, ease: "expo.out" })
-        .to(".text-days", { duration: 1.4, clipPath: "inset(0 0% 0 0)", ease: "power4.inOut" }, "-=1.0");
+        .to(".text-track", { duration: 1.0, autoAlpha: 1, y: 0, ease: "expo.out" })
+        .to(".text-days", { duration: 0.8, clipPath: "inset(0 0% 0 0)", ease: "power4.inOut" }, "-=0.6");
 
       const scrollTl = gsap.timeline({
         scrollTrigger: {
@@ -307,6 +313,16 @@ export function CinematicHero({
           fastScrollEnd: true,
           preventOverlaps: true,
           invalidateOnRefresh: true,
+          onUpdate: (self) => {
+            // The moment the visitor starts scrolling, snap the time-based
+            // intro to its end state. Otherwise it keeps running on the ticker
+            // and competes with this scrub timeline — two heavy repaints per
+            // frame (gradient/clip-path text + the phone mockup) is what made
+            // the mockup lag when scrolling before the intro finished.
+            if (self.progress > 0 && introTl.progress() < 1) {
+              introTl.progress(1);
+            }
+          },
         },
       });
 

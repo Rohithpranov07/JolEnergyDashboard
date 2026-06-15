@@ -23,7 +23,7 @@ export const viewport = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${geistSans.variable} min-h-screen antialiased`}>
+    <html lang="en" className={`${geistSans.variable} min-h-screen antialiased`} suppressHydrationWarning>
       <body className="min-h-screen" suppressHydrationWarning>
         <FirebaseAnalytics />
         <AuthProvider>{children}</AuthProvider>

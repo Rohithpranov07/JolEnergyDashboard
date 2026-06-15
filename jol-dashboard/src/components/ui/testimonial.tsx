@@ -1,9 +1,16 @@
 "use client";
 import { TimelineContent } from "@/components/ui/timeline-animation";
 import { useRef } from "react";
+import Link from "next/link";
+import { useAuth } from "@/components/AuthProvider";
 
 function ClientFeedback() {
   const testimonialRef = useRef<HTMLDivElement>(null);
+
+  // Auth-aware CTA: signed-out visitors hit the login page first (and return
+  // to the dashboard after), signed-in visitors go straight through.
+  const { user } = useAuth();
+  const ctaHref = user ? "/dashboard" : "/login?next=%2Fdashboard";
 
   const revealVariants = {
     visible: (i: number) => ({
@@ -46,6 +53,24 @@ function ClientFeedback() {
             timelineRef={testimonialRef}
           >
             Real data from government registries, verified suppliers, and live market feeds — not AI-generated estimates
+          </TimelineContent>
+          <TimelineContent
+            as="div"
+            className="pt-4"
+            animationNum={2}
+            customVariants={revealVariants}
+            timelineRef={testimonialRef}
+          >
+            <Link
+              href={ctaHref}
+              className="inline-flex items-center gap-2 rounded-full bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              aria-label="Open dashboard"
+            >
+              Open Dashboard
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+              </svg>
+            </Link>
           </TimelineContent>
         </article>
 
