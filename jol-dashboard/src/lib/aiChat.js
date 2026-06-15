@@ -7,7 +7,9 @@ import { PIPELINE_CONTEXT } from "./pipelineContext";
 export const CHAT_SYSTEM =
   "You are a data assistant for Jol Energy, a Li-ion battery recycling startup. " +
   "Answer ONLY based on the pipeline data provided. Be concise (max 3 sentences). " +
-  "Include specific numbers from the data. If you cannot answer from the data, say so briefly.";
+  "Quote exact numbers WITH their units exactly as labelled in the data (e.g. kg/month, " +
+  "metric tons, USD/metric-ton, or counts) — never mix up a count with a volume or price. " +
+  "If you cannot answer from the data, say so briefly.";
 
 /**
  * @param {{role: "user"|"assistant", content: string}[]} history  prior turns
@@ -15,8 +17,8 @@ export const CHAT_SYSTEM =
  * @param {(delta: string) => void} onDelta  called with each streamed chunk
  */
 export async function streamChat(history, question, onDelta) {
-  // Keep the last few turns for context; Gemini requires the conversation to
-  // begin with a user turn, so drop any leading assistant/greeting messages.
+  // Keep the last few turns for context; drop any leading assistant/greeting
+  // messages so the conversation begins with a user turn after the system prompt.
   const recent = history.slice(-6);
   while (recent.length && recent[0].role !== "user") recent.shift();
 

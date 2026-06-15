@@ -1,74 +1,64 @@
-// AI backend for the Insights module, powered by Google Gemini.
+// AI backend for the Insights module, powered by Sarvam AI.
 //
 // The client (AIInsights.jsx) speaks an Anthropic-style contract:
 //   - narrative: POST { type:"narrative", system, messages, maxTokens } -> { text }
 //   - chat:      POST { type:"chat", ... } -> SSE of { type:"content_block_delta",
 //                delta:{ type:"text_delta", text } } events, terminated by [DONE]
-// So we call Gemini here and translate its response/stream into that shape —
-// the frontend stays untouched.
+// Sarvam exposes an OpenAI-compatible /chat/completions endpoint, so we translate
+// to/from that shape here — the frontend stays untouched.
 
-const GEMINI_KEY = process.env.GEMINI_API_KEY;
-// Swappable without a code change. gemini-2.5-flash has a generous free-tier
-// quota; gemini-3.5-flash is newer but capped at ~20 requests/day on free tier.
-const MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
-const BASE = "https://generativelanguage.googleapis.com/v1beta/models";
+const SARVAM_KEY = process.env.SARVAM_API_KEY;
+// Swappable without a code change. sarvam-30b is the faster MoE model; sarvam-105b
+// is the larger one. Both are reasoning models — we send reasoning_effort:null to
+// disable thinking so these short, data-grounded answers aren't eaten by hidden
+// chain-of-thought tokens (Sarvam's documented off-switch).
+const MODEL = process.env.SARVAM_MODEL || "sarvam-30b";
+const ENDPOINT = "https://api.sarvam.ai/v1/chat/completions";
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-// Gemini returns 503 UNAVAILABLE ("high demand") on shared capacity and 429
-// RESOURCE_EXHAUSTED when a rate/quota limit is hit. 503 is always transient →
-// exponential backoff. 429 is retried only when the server's `retryDelay` hint
-// is short (a per-minute burst); a long hint means the daily quota is gone, so
-// we fail fast and let the caller surface it / fall back to rule-based output.
-async function fetchGeminiWithRetry(endpoint, payload, retries = 4) {
-  let res;
+// 503 (capacity) is always transient → exponential backoff. 429 (rate limit) is
+// retried a couple of times with backoff; if it persists the caller surfaces it
+// and falls back to rule-based output.
+async function fetchSarvamWithRetry(payload, retries = 4) {
   for (let attempt = 0; ; attempt++) {
-    res = await fetch(endpoint, {
+    const res = await fetch(ENDPOINT, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-goog-api-key": GEMINI_KEY,
+        Authorization: `Bearer ${SARVAM_KEY}`,
       },
       body: JSON.stringify(payload),
     });
 
     if (res.ok || attempt >= retries) return res;
 
-    if (res.status === 503) {
+    if (res.status === 503 || res.status === 429) {
       await sleep(Math.min(8000, 500 * 2 ** attempt) + Math.random() * 250);
       continue;
-    }
-
-    if (res.status === 429 && attempt < 2) {
-      const body = await res.clone().text().catch(() => "");
-      const match = body.match(/"retryDelay":\s*"(\d+(?:\.\d+)?)s"/);
-      const waitMs = match ? Math.ceil(parseFloat(match[1]) * 1000) : 3000;
-      if (waitMs <= 8000) {
-        await sleep(waitMs + 300);
-        continue;
-      }
     }
 
     return res;
   }
 }
 
-// Anthropic-style roles ("user"/"assistant") + string content -> Gemini's
-// "user"/"model" roles with parts arrays.
-function toGeminiContents(messages = []) {
-  return messages
+// Anthropic-style messages (role "user"/"assistant", string content) + an optional
+// system prompt -> OpenAI/Sarvam chat messages with a leading system message.
+function toSarvamMessages(messages = [], system) {
+  const out = messages
     .filter((m) => m && m.content)
     .map((m) => ({
-      role: m.role === "assistant" ? "model" : "user",
-      parts: [{ text: String(m.content) }],
+      role: m.role === "assistant" ? "assistant" : m.role === "system" ? "system" : "user",
+      content: String(m.content),
     }));
+  if (system) out.unshift({ role: "system", content: String(system) });
+  return out;
 }
 
-const textFromCandidate = (data) =>
-  data?.candidates?.[0]?.content?.parts?.map((p) => p?.text ?? "").join("") ?? "";
+const textFromChoice = (data) => data?.choices?.[0]?.message?.content ?? "";
 
 export async function POST(request) {
-  if (!GEMINI_KEY || GEMINI_KEY === "your_key_here") {
+  if (!SARVAM_KEY || SARVAM_KEY === "your_key_here") {
     return Response.json({ error: "NO_KEY" }, { status: 401 });
   }
 
@@ -83,48 +73,41 @@ export async function POST(request) {
   const isChat = type === "chat";
 
   const payload = {
-    contents: toGeminiContents(messages),
-    generationConfig: {
-      maxOutputTokens: maxTokens,
-      // gemini-flash-latest is a thinking model; its hidden reasoning would eat
-      // the token budget and truncate these short, data-grounded answers. We
-      // want direct responses, so disable thinking.
-      thinkingConfig: { thinkingBudget: 0 },
-    },
-    ...(system ? { system_instruction: { parts: [{ text: system }] } } : {}),
+    model: MODEL,
+    messages: toSarvamMessages(messages, system),
+    max_tokens: maxTokens,
+    // Direct answers, no hidden reasoning eating the token budget.
+    reasoning_effort: null,
+    stream: isChat,
   };
 
-  const endpoint = isChat
-    ? `${BASE}/${MODEL}:streamGenerateContent?alt=sse`
-    : `${BASE}/${MODEL}:generateContent`;
-
-  let geminiRes;
+  let sarvamRes;
   try {
-    geminiRes = await fetchGeminiWithRetry(endpoint, payload);
+    sarvamRes = await fetchSarvamWithRetry(payload);
   } catch {
     return Response.json({ error: "FETCH_FAILED" }, { status: 502 });
   }
 
-  if (!geminiRes.ok) {
-    const detail = await geminiRes.text().catch(() => "");
+  if (!sarvamRes.ok) {
+    const detail = await sarvamRes.text().catch(() => "");
     return Response.json(
-      { error: "GEMINI_ERROR", detail },
-      { status: geminiRes.status },
+      { error: "SARVAM_ERROR", detail },
+      { status: sarvamRes.status },
     );
   }
 
   // ── Non-streaming narrative / city recommendation ──
   if (!isChat) {
-    const data = await geminiRes.json();
-    return Response.json({ text: textFromCandidate(data) });
+    const data = await sarvamRes.json();
+    return Response.json({ text: textFromChoice(data) });
   }
 
-  // ── Streaming chat: Gemini SSE -> Anthropic-style SSE ──
+  // ── Streaming chat: Sarvam (OpenAI) SSE -> Anthropic-style SSE ──
   const stream = new ReadableStream({
     async start(controller) {
       const encoder = new TextEncoder();
       const decoder = new TextDecoder();
-      const reader = geminiRes.body.getReader();
+      const reader = sarvamRes.body.getReader();
       const send = (obj) =>
         controller.enqueue(encoder.encode(`data: ${JSON.stringify(obj)}\n\n`));
       let buffer = "";
@@ -142,7 +125,7 @@ export async function POST(request) {
             const raw = trimmed.slice(5).trim();
             if (!raw || raw === "[DONE]") continue;
             try {
-              const text = textFromCandidate(JSON.parse(raw));
+              const text = JSON.parse(raw)?.choices?.[0]?.delta?.content ?? "";
               if (text) {
                 send({
                   type: "content_block_delta",

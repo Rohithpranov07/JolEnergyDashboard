@@ -102,7 +102,7 @@ const MODULE_ALERTS = buildAlerts();
 
 // Session cache: the narrative + city recommendation are fetched once and reused
 // across tab switches (the dashboard remounts this module on every AI-tab visit),
-// so we don't burn Gemini quota re-asking the same questions. Cleared on reload.
+// so we don't burn Sarvam quota re-asking the same questions. Cleared on reload.
 let narrativeCache = null; // { text, error, noKey }
 let cityCache = null; // { text, error }
 
@@ -442,7 +442,7 @@ export default function AIInsights({ accentColor = "#F0656A" }) {
         {
           role: "assistant",
           content: isNoKey
-            ? "API unavailable – check GEMINI_API_KEY in .env"
+            ? "API unavailable – check SARVAM_API_KEY in .env"
             : `Sorry, I couldn't fetch a response. (${msg})`,
         },
       ]);
@@ -454,7 +454,7 @@ export default function AIInsights({ accentColor = "#F0656A" }) {
 
 
   const fallbackCity = computeFallbackCity();
-  // Gemini returns "CITY: <name> – <reason>"; pull out the parts to spotlight
+  // The model returns "CITY: <name> – <reason>"; pull out the parts to spotlight
   // the city name and reason separately.
   const cityMatch = cityText.match(/CITY:\s*(.+?)\s*[–-]\s*([\s\S]+)/i);
 
@@ -482,7 +482,7 @@ export default function AIInsights({ accentColor = "#F0656A" }) {
           }}
         >
           <Sparkles size={12} strokeWidth={2.4} />
-          Powered by Gemini · gemini-2.5-flash
+          Powered by Sarvam AI · sarvam-30b
         </span>
       </div>
 
@@ -518,14 +518,14 @@ export default function AIInsights({ accentColor = "#F0656A" }) {
           role="alert"
         >
           <p className="text-sm text-[var(--text-primary)]">
-            Add your Gemini API key to{" "}
+            Add your Sarvam API key to{" "}
             <code className="rounded bg-[var(--bg-nav)] px-1 font-mono text-[12px]">
               .env
             </code>{" "}
             to enable AI insights.
           </p>
           <a
-            href="https://aistudio.google.com/apikey"
+            href="https://dashboard.sarvam.ai"
             target="_blank"
             rel="noopener noreferrer"
             className="pressable shrink-0 rounded-lg px-3 py-1.5 text-[12px] font-semibold text-white transition-transform hover:scale-105"
@@ -572,7 +572,7 @@ export default function AIInsights({ accentColor = "#F0656A" }) {
         )}
 
         <p className="mt-3 flex items-center gap-1.5 text-[11px] text-[var(--text-muted)]">
-          <Cpu size={12} /> gemini-2.5-flash · max 350 tokens · live dashboard data
+          <Cpu size={12} /> sarvam-30b · max 350 tokens · live dashboard data
         </p>
       </div>
 
@@ -642,7 +642,7 @@ export default function AIInsights({ accentColor = "#F0656A" }) {
           )}
 
           <p className="mt-3 flex items-center gap-1.5 text-[11px] text-[var(--text-muted)]">
-            <Cpu size={12} /> gemini-2.5-flash · max 200 tokens · outreach priority
+            <Cpu size={12} /> sarvam-30b · max 200 tokens · outreach priority
           </p>
         </div>
 
@@ -805,7 +805,7 @@ export default function AIInsights({ accentColor = "#F0656A" }) {
           />
 
           <p className="mt-2.5 flex items-center gap-1.5 text-[11px] text-[#888888]">
-            <Cpu size={12} /> gemini-2.5-flash · max 400 tokens · context: live
+            <Cpu size={12} /> sarvam-30b · max 400 tokens · context: live
             pipeline data
           </p>
         </div>

@@ -37,7 +37,7 @@ export default function PrivacyPage() {
       <h2>AI assistant</h2>
       <p>
         Questions you ask the in-app AI assistant, together with the dashboard
-        data needed to answer them, are sent to Google&rsquo;s Gemini API to
+        data needed to answer them, are sent to the Sarvam AI API to
         generate a response. Please do not enter confidential personal data into
         the chat. AI responses are generated automatically and may be
         inaccurate.
@@ -53,7 +53,7 @@ export default function PrivacyPage() {
       <h2>Third-party services</h2>
       <p>
         We rely on <strong>Google Firebase</strong> (authentication and
-        analytics), the <strong>Google Gemini API</strong> (AI insights), and{" "}
+        analytics), the <strong>Sarvam AI API</strong> (AI insights), and{" "}
         <strong>Vercel</strong> (hosting). Each processes data under its own
         privacy terms.
       </p>
