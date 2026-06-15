@@ -266,7 +266,7 @@ export default function Dashboard() {
         className="sticky top-0 z-50 px-4 pt-3.5 pb-2.5 sm:px-5"
       >
         <div
-          className="glass-header relative mx-auto flex h-16 max-w-360 items-center justify-between gap-3 overflow-hidden rounded-2xl px-4 sm:px-5 transition-shadow duration-300"
+          className="glass-header relative mx-auto flex h-auto max-w-360 flex-wrap items-center justify-between gap-x-3 gap-y-2 overflow-hidden rounded-2xl px-4 py-2.5 transition-shadow duration-300 sm:h-16 sm:flex-nowrap sm:gap-3 sm:px-5 sm:py-0"
           style={{
             boxShadow: scrolled
               ? "inset 0 1px 0 rgba(255,255,255,0.9), 0 1px 1px rgba(17,24,39,0.04), 0 20px 48px rgba(17,24,39,0.14)"
@@ -274,7 +274,7 @@ export default function Dashboard() {
           }}
         >
           {/* Logo */}
-          <div className="flex shrink-0 items-center gap-3">
+          <div className="order-1 flex shrink-0 items-center gap-3">
             <div
               ref={logoRef}
               className="sheen flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
@@ -298,11 +298,11 @@ export default function Dashboard() {
           </div>
 
           {/* Divider */}
-          <div className="hidden h-6 w-px shrink-0 bg-[var(--border-default)] sm:block" />
+          <div className="hidden h-6 w-px shrink-0 bg-[var(--border-default)] sm:order-2 sm:block" />
 
-          {/* Segmented tab nav */}
+          {/* Segmented tab nav — full-width second row on mobile, inline on desktop */}
           <nav
-            className="scrollbar-none relative flex max-w-[calc(100%-160px)] items-center overflow-x-auto rounded-full p-1 sm:max-w-none"
+            className="scrollbar-none relative order-3 flex w-full items-center overflow-x-auto rounded-full p-1 sm:w-auto"
             style={{ background: "var(--bg-nav)" }}
           >
             {TABS.map((t) => {
@@ -314,7 +314,7 @@ export default function Dashboard() {
                   type="button"
                   onClick={() => changeTab(t.id)}
                   aria-current={isActive ? "page" : undefined}
-                  className="pressable relative z-10 whitespace-nowrap rounded-full px-3.5 py-1.5 text-[12.5px] font-semibold transition-colors duration-200 sm:px-4"
+                  className="pressable relative z-10 flex-1 whitespace-nowrap rounded-full px-3.5 py-2 text-[12.5px] font-semibold transition-colors duration-200 sm:flex-none sm:px-4 sm:py-1.5"
                   style={{
                     color: isActive ? "var(--text-primary)" : "var(--text-secondary)",
                   }}
@@ -331,7 +331,7 @@ export default function Dashboard() {
                       transition={{ type: "spring", stiffness: 380, damping: 30 }}
                     />
                   )}
-                  <span className="flex items-center gap-1.5">
+                  <span className="flex items-center justify-center gap-1.5">
                     <t.Icon
                       size={12}
                       style={{
@@ -349,10 +349,10 @@ export default function Dashboard() {
           </nav>
 
           {/* Divider */}
-          <div className="hidden h-6 w-px shrink-0 bg-[var(--border-default)] sm:block" />
+          <div className="hidden h-6 w-px shrink-0 bg-[var(--border-default)] sm:order-4 sm:block" />
 
-          {/* Health ring + alert bell */}
-          <div className="flex shrink-0 items-center gap-1.5">
+          {/* Health ring + alert bell — top-right on mobile, far right on desktop */}
+          <div className="order-2 flex shrink-0 items-center gap-1.5 sm:order-5">
             <HealthScore size={40} accentColor={active.color} />
             <button
               type="button"
