@@ -1,65 +1,80 @@
-// Compact JSON snapshot of the live dashboard data, used to ground the AI
+// Human-readable snapshot of the live dashboard data, used to ground the AI
 // chat / insights. Kept under ~800 tokens. Shared by AIInsights and the
 // floating chat widget so there's one source of truth.
+//
+// This is deliberately written as plain labelled prose (not raw JSON) so the
+// model can quote figures naturally and map the user's wording to the right
+// number — feeding it camelCase keys made it parrot field names like
+// "tonPlusTierLeadCount" and claim values weren't "linked" to the question.
 
 import { supplierLeads, supplierStats } from "../data/supplierLeads.js";
 import { buyerStats } from "../data/buyerLeads.js";
 import { collectionStats } from "../data/collectionPoints.js";
 import { marketStats } from "../data/marketPrices.js";
 
-// Format a metal price stat into an unambiguous, self-describing string so the
-// model can't misread the raw number or its 30-day change.
-function fmtMetal(stat) {
-  const sign = stat.change30d >= 0 ? "+" : "";
-  return `${stat.current.toLocaleString("en-US")} USD/metric-ton (${sign}${stat.change30d}% over 30 days)`;
-}
+const n = (v) => Number(v).toLocaleString("en-US");
+
+// "Tamil Nadu 17, Karnataka 11, …"
+const pairs = (obj, labels = {}) =>
+  Object.entries(obj)
+    .map(([k, v]) => `${labels[k] ?? k} ${v}`)
+    .join(", ");
+
+const fmtMetal = (s) =>
+  `$${n(s.current)}/metric ton (${s.change30d >= 0 ? "+" : ""}${s.change30d}% over 30 days)`;
+
+const BUYER_CATEGORY_LABELS = {
+  SALT_MFR: "metal-salt manufacturers",
+  CELL_MAKER: "cell makers",
+  CAM_MAKER: "cathode-active-material makers",
+  METAL_RECOV: "metal recovery",
+};
 
 function buildPipelineContext() {
   const staleLeads = supplierLeads.filter(
     (l) => l.lastContactDaysAgo >= 14 && l.stage === "Lead",
   ).length;
 
-  // Every value carries its unit in the key or the value itself. The terse,
-  // unit-less version let the model confuse, e.g., a collection-point COUNT
-  // ("Bengaluru: 9") with a kg volume — so units are now explicit everywhere.
-  return JSON.stringify({
-    units: "Lead/buyer/point figures are counts. Volumes are kg per month unless suffixed MT (metric tons). Metal prices are USD per metric ton.",
-    suppliers: {
-      totalLeads: supplierStats.total,
-      leadCountByState: supplierStats.byState,
-      funnelStageLeadCounts: supplierStats.funnelStages.map(
-        (s) => `${s.stage}: ${s.count} leads`,
-      ),
-      totalMonthlyVolume_kg: supplierStats.totalKg,
-      tonPlusTierLeadCount: supplierStats.tonPlusTier,
-      staleLeadCount: staleLeads,
-      highInterestLeadCount: supplierStats.highInterest,
-      citiesCovered: supplierStats.citiesCount,
-      topCitiesByMonthlyVolume: supplierStats.cityVolumeChart
-        .slice(0, 5)
-        .map((c) => `${c.city}: ${c.kg.toLocaleString("en-US")} kg/month`),
-    },
-    buyers: {
-      totalBuyers: buyerStats.total,
-      buyerCountByCategory: buyerStats.byCategory,
-      buyerCountByProduct: buyerStats.byProduct,
-      totalMonthlyDemand_MT: buyerStats.totalConsumptionMT,
-      highLoiBuyerCount: buyerStats.highLoiCount,
-    },
-    collection: {
-      totalPoints: collectionStats.total,
-      verifiedPoints: collectionStats.verified,
-      fieldPoints: collectionStats.field,
-      totalMonthlyVolume_kg: collectionStats.totalKg,
-      pointCountByCity: collectionStats.byCity,
-    },
-    market: {
-      cobalt: fmtMetal(marketStats.cobalt),
-      nickel: fmtMetal(marketStats.nickel),
-      lithiumCarbonate: fmtMetal(marketStats.liCarb),
-      pricesAsOf: marketStats.latestDate,
-    },
-  });
+  const funnel = supplierStats.funnelStages
+    .map((s) => `${s.stage} ${s.count}`)
+    .join(", ");
+
+  const topCities = supplierStats.cityVolumeChart
+    .slice(0, 5)
+    .map((c) => `${c.city} ${n(c.kg)} kg/month`)
+    .join(", ");
+
+  return `JOL ENERGY — live dashboard data (figures are counts unless a unit is shown).
+
+SUPPLIERS (scrap-inflow pipeline):
+- Total supplier leads: ${supplierStats.total}
+- Leads in the 1-ton-plus / ton-plus volume tier (each ≥1,000 kg per month): ${supplierStats.tonPlusTier}
+- High-interest leads: ${supplierStats.highInterest}
+- Stale leads (no contact in 14+ days, still at "Lead" stage): ${staleLeads}
+- Cities covered: ${supplierStats.citiesCount}
+- Total estimated monthly scrap volume: ${n(supplierStats.totalKg)} kg/month
+- Conversion funnel (leads per stage): ${funnel}
+- Leads by state: ${pairs(supplierStats.byState)}
+- Top cities by monthly volume: ${topCities}
+
+BUYERS (recovered-metal offtake pipeline):
+- Total buyers: ${buyerStats.total}
+- Buyers by category: ${pairs(buyerStats.byCategory, BUYER_CATEGORY_LABELS)}
+- Buyers by product (metal salt): ${pairs(buyerStats.byProduct)}
+- Total monthly demand across buyers: ${n(buyerStats.totalConsumptionMT)} metric tons/month
+- Buyers with high LOI (letter-of-intent) probability: ${buyerStats.highLoiCount}
+
+COLLECTION NETWORK (grassroots collection points):
+- Total collection points: ${collectionStats.total}
+- Registry-verified points: ${collectionStats.verified}
+- Field-sourced points: ${collectionStats.field}
+- Total estimated monthly collection volume: ${n(collectionStats.totalKg)} kg/month
+- Collection points by city: ${pairs(collectionStats.byCity)}
+
+BATTERY-METAL MARKET PRICES (as of ${marketStats.latestDate}):
+- Cobalt: ${fmtMetal(marketStats.cobalt)}
+- Nickel: ${fmtMetal(marketStats.nickel)}
+- Lithium carbonate: ${fmtMetal(marketStats.liCarb)}`;
 }
 
 // Stable module-level value (data is deterministic/seeded).
